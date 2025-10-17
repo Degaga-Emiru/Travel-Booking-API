@@ -10,7 +10,7 @@ The API supports **user authentication**, **role-based access** (user/admin), an
 - **Travel Management:** CRUD operations for flights, hotels, and tours  
 - **Booking Management:** Create, view, and cancel bookings  
 - **RESTful API:** Input validation and proper error handling  
-- **Database Integration:** PostgreSQL or MongoDB  
+- **Database Integration:** PostgreSQL
 
 ## Tech Stack
 - **Backend:** Node.js, Express.js  
