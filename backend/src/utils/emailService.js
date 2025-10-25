@@ -2,13 +2,13 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 
-// Create transporter
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE,
+  port: process.env.EMAIL_PORT,
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
 /**
@@ -16,8 +16,11 @@ const transporter = nodemailer.createTransporter({
  */
 const sendEmail = async (to, subject, templateName, templateData) => {
   try {
-    // Read email template
     const templatePath = path.join(__dirname, '../templates/emails', `${templateName}.html`);
+    if (!fs.existsSync(templatePath)) {
+      throw new Error(`Template not found: ${templateName}.html`);
+    }
+
     let html = fs.readFileSync(templatePath, 'utf8');
 
     // Replace template variables
@@ -30,18 +33,17 @@ const sendEmail = async (to, subject, templateName, templateData) => {
       from: `"Travel Booking" <${process.env.EMAIL_USER}>`,
       to,
       subject,
-      html
+      html,
     };
 
     const result = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', result.messageId);
+    console.log(`Email sent to ${to} successfully: ${result.messageId}`);
     return result;
   } catch (error) {
     console.error('Error sending email:', error);
     throw new Error('Failed to send email');
   }
 };
-
 /**
  * Send booking confirmation email
  */
@@ -97,7 +99,7 @@ const sendPasswordReset = async (user, resetToken) => {
 };
 
 /**
- * Send welcome email
+ * Example: Send Welcome Email
  */
 const sendWelcomeEmail = async (user) => {
   const subject = 'Welcome to Travel Booking';
@@ -105,11 +107,12 @@ const sendWelcomeEmail = async (user) => {
   const templateData = {
     userName: user.getFullName(),
     loginUrl: `${process.env.CLIENT_URL}/login`,
-    supportEmail: 'support@travelbooking.com'
+    supportEmail: 'support@travelbooking.com',
   };
 
   return await sendEmail(user.email, subject, 'welcome', templateData);
 };
+
 
 /**
  * Send booking cancellation email
