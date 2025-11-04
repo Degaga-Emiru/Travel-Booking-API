@@ -4,7 +4,9 @@ const {
   login,
   getMe,
   updatePassword,
+  verifyOTP,
   forgotPassword,
+  resendOTP,
   resetPassword,
   updateProfile,
   logout
@@ -21,6 +23,8 @@ router.get('/me', protect, getMe);
 router.put('/update-password', protect, updatePassword);
 router.put('/profile', protect, updateProfile);
 router.post('/forgot-password', authLimiter, forgotPassword);
+router.post('/verify-otp', authLimiter, validateVerifyOTP, verifyOTP);
+router.post('/resend-otp', authLimiter, validateForgotPassword, resendOTP);
 router.put('/reset-password/:resetToken', authLimiter, resetPassword);
 router.post('/logout', protect, logout);
 

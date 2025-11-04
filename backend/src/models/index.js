@@ -10,6 +10,7 @@ const Package = require('./Package');
 const Payment = require('./Payment');
 const Review = require('./Review');
 const Notification = require('./Notification');
+const PasswordReset = require('./PasswordReset');
 
 // Define associations
 User.hasMany(Booking, { foreignKey: 'userId' });
@@ -41,7 +42,9 @@ Booking.belongsTo(Package, { foreignKey: 'packageId' });
 
 Package.hasMany(Review, { foreignKey: 'packageId' });
 Review.belongsTo(Package, { foreignKey: 'packageId' });
-
+// Add association
+User.hasMany(PasswordReset, { foreignKey: 'email', sourceKey: 'email' });
+PasswordReset.belongsTo(User, { foreignKey: 'email', targetKey: 'email' });
 Booking.hasOne(Payment, { foreignKey: 'bookingId' });
 Payment.belongsTo(Booking, { foreignKey: 'bookingId' });
 
@@ -55,5 +58,7 @@ module.exports = {
   Package,
   Payment,
   Review,
-  Notification
+  Notification,
+  PasswordReset
+
 };
