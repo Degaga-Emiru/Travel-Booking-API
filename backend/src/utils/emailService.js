@@ -45,6 +45,53 @@ const sendEmail = async (to, subject, templateName, templateData) => {
   }
 };
 /**
+ * Send password reset OTP email
+ */
+const sendPasswordResetOTP = async (user, otp) => {
+  const subject = 'Password Reset OTP - Travel Booking';
+  
+  const templateData = {
+    userName: user.getFullName(),
+    otpCode: otp,
+    expiryMinutes: 3,
+    supportEmail: 'support@travelbooking.com'
+  };
+
+  return await sendEmail(user.email, subject, 'passwordResetOTP', templateData);
+};
+
+/**
+ * Send password updated confirmation email
+ */
+const sendPasswordUpdated = async (user) => {
+  const subject = 'Password Updated - Travel Booking';
+  
+  const templateData = {
+    userName: user.getFullName(),
+    updateTime: new Date().toLocaleString(),
+    supportEmail: 'support@travelbooking.com',
+    contactEmail: 'support@travelbooking.com'
+  };
+
+  return await sendEmail(user.email, subject, 'passwordUpdated', templateData);
+};
+
+/**
+ * Send password reset success email
+ */
+const sendPasswordResetSuccess = async (user) => {
+  const subject = 'Password Reset Successful - Travel Booking';
+  
+  const templateData = {
+    userName: user.getFullName(),
+    resetTime: new Date().toLocaleString(),
+    supportEmail: 'support@travelbooking.com'
+  };
+
+  return await sendEmail(user.email, subject, 'passwordResetSuccess', templateData);
+};
+
+/**
  * Send booking confirmation email
  */
 const sendBookingConfirmation = async (user, booking) => {
@@ -138,5 +185,8 @@ module.exports = {
   sendPaymentConfirmation,
   sendPasswordReset,
   sendWelcomeEmail,
-  sendBookingCancellation
+  sendBookingCancellation,
+  sendPasswordResetOTP,
+  sendPasswordUpdated,
+  sendPasswordResetSuccess
 };
