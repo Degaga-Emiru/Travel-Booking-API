@@ -36,6 +36,68 @@ const validateLogin = (req, res, next) => {
   next();
 };
 
+const validateUpdatePassword = (req, res, next) => {
+  const schema = Joi.object({
+    currentPassword: Joi.string().required().min(1),
+    newPassword: Joi.string().min(6).required()
+  });
+
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details[0].message
+    });
+  }
+  next();
+};
+
+const validateForgotPassword = (req, res, next) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required().trim().lowercase()
+  });
+
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details[0].message
+    });
+  }
+  next();
+};
+
+const validateVerifyOTP = (req, res, next) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required().trim().lowercase(),
+    otp: Joi.string().length(6).pattern(/^[0-9]+$/).required()
+  });
+
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details[0].message
+    });
+  }
+  next();
+};
+
+const validateResetPassword = (req, res, next) => {
+  const schema = Joi.object({
+    password: Joi.string().min(6).required()
+  });
+
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details[0].message
+    });
+  }
+  next();
+};
+
 const validateBooking = (req, res, next) => {
   const schema = Joi.object({
     bookingType: Joi.string().valid('flight', 'hotel', 'package', 'car_rental').required(),
@@ -135,6 +197,10 @@ const validateHotelSearch = (req, res, next) => {
 module.exports = {
   validateRegistration,
   validateLogin,
+  validateUpdatePassword,
+  validateForgotPassword,
+  validateVerifyOTP,
+  validateResetPassword,
   validateBooking,
   validateFlightSearch,
   validateHotelSearch
