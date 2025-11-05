@@ -1,6 +1,6 @@
 const sequelize = require('../config/database');
-
-// Import all models
+const { DataTypes } = require('sequelize');
+// Import all models - they are already initialized classes
 const User = require('./User');
 const Booking = require('./Booking');
 const Flight = require('./Flight');
@@ -42,9 +42,10 @@ Booking.belongsTo(Package, { foreignKey: 'packageId' });
 
 Package.hasMany(Review, { foreignKey: 'packageId' });
 Review.belongsTo(Package, { foreignKey: 'packageId' });
-// Add association
+
 User.hasMany(PasswordReset, { foreignKey: 'email', sourceKey: 'email' });
 PasswordReset.belongsTo(User, { foreignKey: 'email', targetKey: 'email' });
+
 Booking.hasOne(Payment, { foreignKey: 'bookingId' });
 Payment.belongsTo(Booking, { foreignKey: 'bookingId' });
 
@@ -60,5 +61,4 @@ module.exports = {
   Review,
   Notification,
   PasswordReset
-
 };
