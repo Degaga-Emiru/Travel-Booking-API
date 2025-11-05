@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
-const { sendWelcomeEmail, sendPasswordReset } = require('../utils/emailService');
+const { 
+  sendWelcomeEmail, 
+  sendPasswordResetOTP, 
+  sendPasswordUpdated, 
+  sendPasswordResetSuccess 
+} = require('../utils/emailService');
 const { generateRandomPassword } = require('../utils/helpers');
 
 const signToken = (id) => {
