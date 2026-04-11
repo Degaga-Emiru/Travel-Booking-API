@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiStar, FiMapPin, FiWifi, FiCoffee, FiCar } from 'react-icons/fi';
+import { FiStar, FiMapPin, FiWifi, FiCoffee } from 'react-icons/fi';
 import { formatCurrency, calculateDuration } from '../../utils/helpers';
 
 const HotelCard = ({ hotel, viewMode, searchParams }) => {
@@ -16,7 +16,7 @@ const HotelCard = ({ hotel, viewMode, searchParams }) => {
     const icons = {
       'WiFi': <FiWifi className="w-4 h-4" />,
       'Restaurant': <FiCoffee className="w-4 h-4" />,
-      'Parking': <FiCar className="w-4 h-4" />,
+      'Parking': <FiMapPin className="w-4 h-4" />,
     };
     return icons[amenity] || <FiWifi className="w-4 h-4" />;
   };

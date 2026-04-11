@@ -135,9 +135,9 @@ const Login = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+                <Link to="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
                   Forgot your password?
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -145,7 +145,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center items-center bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-md shadow transition disabled:opacity-50"
               >
                 {isLoading ? (
                   <LoadingSpinner size="sm" text="" />
@@ -162,19 +162,14 @@ const Login = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Demo Credentials</span>
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
               </div>
             </div>
 
-            <div className="mt-3 text-center">
-              <div className="text-sm text-gray-600 space-y-1">
-                <p>
-                  <strong>Admin:</strong> admin@travelbooking.com / admin123
-                </p>
-                <p>
-                  <strong>Customer:</strong> john@example.com / password123
-                </p>
-              </div>
+            <div className="mt-6 grid grid-cols-3 gap-3">
+              <div><a href="#" className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition">Google</a></div>
+              <div><a href="#" className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition">Apple</a></div>
+              <div><a href="#" className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition">Facebook</a></div>
             </div>
           </div>
         </div>

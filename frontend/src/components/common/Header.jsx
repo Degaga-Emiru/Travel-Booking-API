@@ -24,7 +24,7 @@ const Header = () => {
     { path: '/', label: 'Home' },
     { path: '/hotels', label: 'Hotels' },
     { path: '/flights', label: 'Flights' },
-    { path: '/packages', label: 'Packages' },
+    { path: '/cars', label: 'Cars' },
   ];
 
   if (isAuthenticated) {

@@ -16,7 +16,14 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "script-src": ["'self'", "'unsafe-eval'"],
+    },
+  },
+}));
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
