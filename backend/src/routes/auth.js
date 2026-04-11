@@ -9,7 +9,9 @@ const {
   resendOTP,
   resetPassword,
   updateProfile,
-  logout
+  logout,
+  refresh,
+  verifyEmail
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { 
@@ -30,6 +32,8 @@ router.post('/forgot-password', authLimiter, validateForgotPassword, forgotPassw
 router.post('/verify-otp', authLimiter, validateVerifyOTP, verifyOTP);
 router.post('/resend-otp', authLimiter, validateForgotPassword, resendOTP);
 router.put('/reset-password/:resetToken', authLimiter, validateResetPassword, resetPassword);
+router.post('/verify-email', authLimiter, verifyEmail);
+router.post('/refresh', refresh);
 
 // Protected routes
 router.use(protect); // All routes below this require authentication

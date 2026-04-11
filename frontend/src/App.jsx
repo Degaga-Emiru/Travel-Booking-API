@@ -11,6 +11,10 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
+import VerifyOTP from './pages/VerifyOTP';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Hotels from './pages/Hotels';
 import Flights from './pages/Flights';
@@ -61,6 +65,38 @@ function App() {
             element={
               <PublicRoute>
                 <Register />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/verify-email" 
+            element={
+              <PublicRoute>
+                <VerifyEmail />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/verify-otp" 
+            element={
+              <PublicRoute>
+                <VerifyOTP />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/forgot-password" 
+            element={
+              <PublicRoute>
+                <ForgotPassword />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/reset-password" 
+            element={
+              <PublicRoute>
+                <ResetPassword />
               </PublicRoute>
             } 
           />
