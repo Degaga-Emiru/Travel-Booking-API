@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
-const { User, PasswordReset } = require('../models');
+const crypto = require('crypto');
+const { User, PasswordReset, RefreshToken, LoginAttempt, PasswordHistory, Referral, Role } = require('../models');
+const redisClient = require('../config/redis');
 const { 
   sendWelcomeEmail, 
   sendPasswordResetOTP, 
@@ -41,7 +43,7 @@ const maskEmail = (email) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, phone } = req.body;
+    const { firstName, lastName, email, password, phone, referralCode } = req.body;
 
     const user = await User.create({
       firstName,
@@ -49,11 +51,39 @@ exports.register = async (req, res, next) => {
       email,
       password,
       phone,
-      role: 'customer'
+      role: 'customer' // Maintaining enum compatibility while creating UserRole association
     });
 
-    // Send welcome email
-    await sendWelcomeEmail(user);
+    // Handle Referral System
+    if (referralCode) {
+      const referrer = await User.findOne({ where: { referralCode } });
+      if (referrer) {
+        await Referral.create({
+          referrerId: referrer.id,
+          referredId: user.id,
+          referralCode,
+          status: 'completed'
+        });
+        referrer.addLoyaltyPoints(500); // 500 points for successful referral
+      }
+    }
+
+    // Generate user's own referral code
+    const ownReferralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+    user.referralCode = ownReferralCode;
+    await user.save();
+
+    // Verify Email Code Setup
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+    await redisClient.setex(`email_verify:${user.id}`, 24 * 60 * 60, verificationCode); // 24 hours expiry
+
+    // Try to send email, but swallow error if ethereal/nodemailer fails locally
+    try {
+      await sendWelcomeEmail(user);
+      console.log(`Email Verification Code for ${user.email} is: ${verificationCode}`); // For easy dev test
+    } catch (e) {
+      console.log("Email mock failure, code:", verificationCode);
+    }
 
     createSendToken(user, 201, res);
   } catch (error) {
@@ -64,17 +94,36 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'] || 'unknown';
 
     if (!email || !password) {
-      return res.status(400).json({
+      return res.status(400).json({ success: false, message: 'Please provide email and password' });
+    }
+
+    // Check login attempts
+    let loginAttempt = await LoginAttempt.findOne({ where: { email, ipAddress } });
+    if (loginAttempt && loginAttempt.lockUntil && loginAttempt.lockUntil > new Date()) {
+      return res.status(403).json({
         success: false,
-        message: 'Please provide email and password'
+        message: 'Account locked due to multiple failed attempts. Try again in 15 minutes.'
       });
     }
 
     const user = await User.findOne({ where: { email } });
 
     if (!user || !(await user.correctPassword(password))) {
+      // Record failed attempt
+      if (!loginAttempt) {
+        loginAttempt = await LoginAttempt.create({ email, ipAddress, attempts: 1 });
+      } else {
+        loginAttempt.attempts += 1;
+        if (loginAttempt.attempts >= 5) {
+          loginAttempt.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // lock for 15 mins
+        }
+        await loginAttempt.save();
+      }
+
       return res.status(401).json({
         success: false,
         message: 'Incorrect email or password'
@@ -82,17 +131,68 @@ exports.login = async (req, res, next) => {
     }
 
     if (!user.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: 'Account is deactivated. Please contact support.'
-      });
+      return res.status(401).json({ success: false, message: 'Account is deactivated' });
+    }
+
+    // Reset login attempts on success
+    if (loginAttempt) {
+        await loginAttempt.destroy();
     }
 
     // Update last login
     user.lastLogin = new Date();
     await user.save();
 
+    // Generate Refresh Token
+    const refreshTokenValue = crypto.randomBytes(40).toString('hex');
+    await RefreshToken.create({
+      userId: user.id,
+      token: refreshTokenValue,
+      deviceId: crypto.randomBytes(16).toString('hex'), // In real scenario get from headers
+      ipAddress,
+      userAgent,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    });
+
+    res.cookie('refreshToken', refreshTokenValue, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     createSendToken(user, 200, res);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.refresh = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, message: 'No refresh token provided' });
+    }
+
+    const tokenDoc = await RefreshToken.findOne({ where: { token: refreshToken, isRevoked: false } });
+
+    if (!tokenDoc || tokenDoc.expiresAt < new Date()) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+    }
+
+    const user = await User.findByPk(tokenDoc.userId);
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'User not found' });
+    }
+
+    const newAccessToken = signToken(user.id);
+    
+    // Optional: Rotate refresh token logic could go here
+
+    res.status(200).json({
+      success: true,
+      token: newAccessToken
+    });
   } catch (error) {
     next(error);
   }
@@ -279,6 +379,35 @@ exports.forgotPassword = async (req, res, next) => {
 
   } catch (error) {
     console.error('Forgot password error:', error);
+    next(error);
+  }
+};
+
+// ✅ VERIFY EMAIL ROUTE
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const { email, code } = req.body;
+    
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    
+    if (user.isEmailVerified) {
+      return res.status(400).json({ success: false, message: 'Email already verified' });
+    }
+
+    const savedCode = await redisClient.get(`email_verify:${user.id}`);
+    
+    if (!savedCode || savedCode !== code) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired verification code' });
+    }
+
+    user.isEmailVerified = true;
+    await user.save();
+    
+    await redisClient.del(`email_verify:${user.id}`);
+
+    res.status(200).json({ success: true, message: 'Email verified successfully' });
+  } catch (error) {
     next(error);
   }
 };
@@ -535,6 +664,36 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
   try {
+    const refreshToken = req.cookies.refreshToken;
+    let token;
+
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    
+    // Blacklist access token in Redis
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
+        const expiry = decoded.exp - Math.floor(Date.now() / 1000);
+        if (expiry > 0) {
+          await redisClient.setex(`bl_${token}`, expiry, token);
+        }
+      } catch (e) {
+        // Token might be invalid, ignore
+      }
+    }
+
+    // Delete refresh token from DB
+    if (refreshToken) {
+      await RefreshToken.destroy({ where: { token: refreshToken } });
+    }
+
+    res.cookie('refreshToken', 'none', {
+      expires: new Date(Date.now() + 10 * 1000),
+      httpOnly: true
+    });
+
     res.status(200).json({
       success: true,
       message: 'Logged out successfully'

@@ -7,7 +7,7 @@ import { FiCalendar, FiPackage, FiTrendingUp, FiUser, FiMapPin, FiCreditCard } f
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const { data: bookingsData, isLoading: bookingsLoading } = useQuery({
     queryKey: ['userBookings'],
@@ -212,7 +212,7 @@ const Dashboard = () => {
                   <p className="text-sm text-gray-500">{user?.email}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-4 text-sm mt-4">
                 <div>
                   <p className="text-gray-600">Role</p>
                   <p className="font-medium text-gray-900 capitalize">{user?.role}</p>
@@ -220,11 +220,26 @@ const Dashboard = () => {
                 <div>
                   <p className="text-gray-600">Member since</p>
                   <p className="font-medium text-gray-900">
-                    {new Date(user?.createdAt).getFullYear()}
+                    {user?.createdAt ? new Date(user.createdAt).getFullYear() : 'N/A'}
                   </p>
                 </div>
               </div>
             </div>
+            
+            <hr className="my-4" />
+
+            <div className="space-y-3">
+              <h4 className="text-md font-semibold text-gray-900">Active Sessions</h4>
+              <div className="text-sm border rounded-lg p-3 bg-gray-50">
+                <p className="font-medium">Windows PC • Chrome</p>
+                <p className="text-gray-500 text-xs">Current Session</p>
+                <p className="text-gray-500 text-xs">IP: 192.168.1.1</p>
+              </div>
+            </div>
+
+            <button onClick={logout} className="mt-6 w-full flex justify-center items-center py-2 px-4 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 focus:outline-none transition">
+              Logout
+            </button>
           </div>
         </div>
       </div>

@@ -21,8 +21,10 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.24",
+    "js-cookie": "^3.0.5",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
+    "lucide-react": "^1.8.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.1",
     "react-chartjs-2": "^5.3.0",
@@ -32,8 +34,11 @@
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "react-leaflet": "^5.0.0",
+    "react-router-dom": "^7.14.0",
     "styled-components": "^6.1.19",
-    "yup": "^1.7.1"
+    "yup": "^1.7.1",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

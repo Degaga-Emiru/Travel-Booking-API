@@ -62,6 +62,11 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  referralCode: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: true
+  },
   preferences: {
     type: DataTypes.JSONB,
     defaultValue: {
