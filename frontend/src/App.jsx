@@ -21,6 +21,8 @@ import Flights from './pages/Flights';
 import Packages from './pages/Packages';
 import Bookings from './pages/Bookings';
 import Profile from './pages/Profile';
+import CityDetail from './pages/CityDetail';
+import Cities from './pages/Cities';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -52,6 +54,8 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
+          <Route path="/cities" element={<Cities />} />
+          <Route path="/cities/:cityName" element={<CityDetail />} />
           <Route 
             path="/login" 
             element={

@@ -1,0 +1,274 @@
+{
+  "destinations": [
+    {
+      "id": "addis-ababa",
+      "name": "Addis Ababa",
+      "slug": "addis-ababa",
+      "description": "The vibrant capital city of Ethiopia, known for its rich history, diverse culture, and bustling markets.",
+      "image": "https://images.unsplash.com/photo-1544085311-11a028465b03?auto=format&fit=crop&w=1200&q=80",
+      "previewImages": [
+        "https://images.unsplash.com/photo-1540959733332-47ad22581b52?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=400&q=80"
+      ],
+      "attractions": [
+        {
+          "name": "National Museum of Ethiopia",
+          "description": "Home to the famous fossilized remains of Lucy, our early human ancestor.",
+          "image": "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "Holy Trinity Cathedral",
+          "description": "The final resting place of Emperor Haile Selassie.",
+          "image": "https://images.unsplash.com/photo-1565032500057-a3f875317452?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "Merkato",
+          "description": "One of the largest open-air markets in Africa.",
+          "image": "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "travelInfo": {
+        "bestTime": "October to March",
+        "activities": ["Museum visits", "Market shopping", "Traditional dining"],
+        "tips": "Use Ride or Feres for easy transportation."
+      }
+    },
+    {
+      "id": "lalibela",
+      "name": "Lalibela",
+      "slug": "lalibela",
+      "description": "The holy city famous for its monolithic rock-hewn churches, a UNESCO World Heritage site.",
+      "image": "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=1200&q=80",
+      "previewImages": [
+        "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1523438097201-51217c39c1df?auto=format&fit=crop&w=400&q=80"
+      ],
+      "attractions": [
+        {
+          "name": "Bete Giyorgis (Church of St. George)",
+          "description": "The most famous and spectacular of the rock-hewn churches.",
+          "image": "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "Northern Group Churches",
+          "description": "A cluster of beautiful rock-hewn churches connected by tunnels.",
+          "image": "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "travelInfo": {
+        "bestTime": "January (during Ganna/Christmas)",
+        "activities": ["Religious tours", "Hiking", "Local coffee ceremonies"],
+        "tips": "Wear easy-to-remove shoes while visiting churches."
+      }
+    },
+    {
+      "id": "hawassa",
+      "name": "Hawassa",
+      "slug": "hawassa",
+      "description": "A beautiful lakeside city known for its vibrant fish market and relaxing atmosphere.",
+      "image": "https://images.unsplash.com/photo-1518391846015-55a9cb000b21?auto=format&fit=crop&w=1200&q=80",
+      "previewImages": [
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=400&q=80"
+      ],
+      "attractions": [
+        {
+          "name": "Lake Hawassa",
+          "description": "Famous for its stunning sunsets and abundance of Marabou storks.",
+          "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "Fish Market (Amora Gedel)",
+          "description": "A lively morning market where you can enjoy fresh tilapia soup.",
+          "image": "https://images.unsplash.com/photo-1534073828943-f801091bb18c?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "City Waterfront",
+          "description": "A perfect place for evening walks and enjoying the lakeside breeze.",
+          "image": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "travelInfo": {
+        "bestTime": "September to May",
+        "activities": ["Boat rides", "Bird watching", "Fish tasting"],
+        "tips": "Try the local fish soup at the market early in the morning."
+      }
+    },
+    {
+      "id": "arbaminch",
+      "name": "Arbaminch",
+      "slug": "arbaminch",
+      "description": "Known as 'Forty Springs', it's a gateway to Nechisar National Park and the beautiful Rift Valley lakes.",
+      "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
+      "previewImages": [
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80"
+      ],
+      "attractions": [
+        {
+          "name": "Lake Chamo",
+          "description": "Home to the world's most impressive populations of crocodiles and hippos.",
+          "image": "https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "Nechisar National Park",
+          "description": "Offers stunning views of the 'Bridge of God' between Chamo and Abaya lakes.",
+          "image": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "Lake Abaya",
+          "description": "Ethiopia's second largest lake, famous for its reddish-brown water.",
+          "image": "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "travelInfo": {
+        "bestTime": "December to February",
+        "activities": ["Boat safaris", "Wildlife viewing", "Village visits"],
+        "tips": "Visit the nearby Dorze village for a unique cultural experience."
+      }
+    },
+    {
+      "id": "assosa",
+      "name": "Assosa",
+      "slug": "assosa",
+      "description": "Capital of the Benishangul-Gumuz Region, near the monumental Grand Ethiopian Renaissance Dam (GERD).",
+      "image": "https://images.unsplash.com/photo-1433086566608-bc2d2643a75e?auto=format&fit=crop&w=1200&q=80",
+      "previewImages": [
+        "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80"
+      ],
+      "attractions": [
+        {
+          "name": "Grand Ethiopian Renaissance Dam (GERD)",
+          "description": "One of the most ambitious engineering projects in Africa.",
+          "image": "https://images.unsplash.com/photo-1621272036047-bb0f76bbc1ad?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "Blue Nile River",
+          "description": "The majestic river flows through this region, creating beautiful landscapes.",
+          "image": "https://images.unsplash.com/photo-1433086566608-bc2d2643a75e?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "travelInfo": {
+        "bestTime": "October to March",
+        "activities": ["Landscape viewing", "Cultural tours"],
+        "tips": "Book tours to the dam in advance."
+      }
+    },
+    {
+      "id": "gondar",
+      "name": "Gondar",
+      "slug": "gondar",
+      "description": "The 'Camelot of Africa', known for its medieval castles and the beautiful Debre Berhan Selassie church.",
+      "image": "https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=80",
+      "previewImages": [
+        "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1551882547-ff40c0d588fa?auto=format&fit=crop&w=400&q=80"
+      ],
+      "attractions": [
+        {
+          "name": "Fasil Ghebbi",
+          "description": "The fortress-city of Gondar, residence of the Ethiopian emperor Fasilides.",
+          "image": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80"
+        },
+        {
+          "name": "Fasilides' Bath",
+          "description": "A beautiful site where Timkat (Epiphany) celebrations take place.",
+          "image": "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=800&q=80"
+        }
+      ],
+      "travelInfo": {
+        "bestTime": "January (for Timkat)",
+        "activities": ["Castle tours", "Photography", "Religious festivals"],
+        "tips": "Gondar is the starting point for trips to the Simien Mountains."
+      }
+    }
+  ],
+  "hotels": [
+    {
+      "id": "skylight-hotel",
+      "name": "Ethiopian Skylight Hotel",
+      "city": "Addis Ababa",
+      "rating": 4.9,
+      "price": 200,
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "kuriftu-resort-hawassa",
+      "name": "Kuriftu Resort & Spa Hawassa",
+      "city": "Hawassa",
+      "rating": 4.8,
+      "price": 180,
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "haile-resort-arbaminch",
+      "name": "Haile Resort Arbaminch",
+      "city": "Arbaminch",
+      "rating": 4.7,
+      "price": 150,
+      "image": "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "goha-hotel-gondar",
+      "name": "Goha Hotel",
+      "city": "Gondar",
+      "rating": 4.5,
+      "price": 120,
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c0d588fa?auto=format&fit=crop&w=800&q=80"
+    }
+  ],
+  "airports": [
+    {
+      "name": "Addis Ababa Bole International",
+      "code": "ADD",
+      "location": "Addis Ababa",
+      "description": "One of the largest aviation hubs in Africa."
+    },
+    {
+      "name": "Bahir Dar Ginbot 7 Airport",
+      "code": "BJR",
+      "location": "Bahir Dar",
+      "description": "Serving the beautiful Lake Tana region."
+    },
+    {
+      "name": "Atse Fasil Airport",
+      "code": "GDQ",
+      "location": "Gondar",
+      "description": "Entry point for historical site tours."
+    },
+    {
+      "name": "Alula Aba Nega Airport",
+      "code": "MQX",
+      "location": "Mekele",
+      "description": "Key hub for the northern region."
+    }
+  ],
+  "heroSlides": [
+    {
+      "image": "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=1920&q=80",
+      "title": "Lalibela",
+      "subtitle": "Spiritual heart of Ethiopia"
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1540959733332-47ad22581b52?auto=format&fit=crop&w=1920&q=80",
+      "title": "Axum",
+      "subtitle": "Cradle of ancient civilization"
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1518391846015-55a9cb000b21?auto=format&fit=crop&w=1920&q=80",
+      "title": "Hawassa Waterfront",
+      "subtitle": "Relaxation by the lakeside"
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&w=1920&q=80",
+      "title": "Lake Chamo",
+      "subtitle": "Wildlife in the Rift Valley"
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1920&q=80",
+      "title": "Gondar Castles",
+      "subtitle": "The Camelot of Africa"
+    }
+  ]
+}
