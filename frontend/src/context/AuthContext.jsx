@@ -46,7 +46,6 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       setUser(data.user);
       
-      toast.success('Login successful!');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Login failed';
@@ -59,7 +58,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.register(userData);
       
-      toast.success(response.data.message || 'Registration successful! Please verify your email.');
       return { success: true, data: response.data };
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed';
@@ -79,7 +77,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.updateProfile(profileData);
       setUser(response.data.data.user);
-      toast.success('Profile updated successfully!');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Profile update failed';
@@ -91,7 +88,6 @@ export const AuthProvider = ({ children }) => {
   const updatePassword = async (passwordData) => {
     try {
       await authAPI.updatePassword(passwordData);
-      toast.success('Password updated successfully!');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Password update failed';

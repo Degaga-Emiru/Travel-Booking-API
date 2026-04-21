@@ -6,6 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 const loginSchema = yup.object({
   email: yup
@@ -41,6 +42,7 @@ const Login = () => {
     setIsLoading(false);
     
     if (result.success) {
+      toast.success('Login successful!');
       navigate(from, { replace: true });
     }
   };

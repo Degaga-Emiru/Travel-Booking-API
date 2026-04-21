@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from '../api/axios';
+import api from '../services/api';
 import { FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { toast } from 'react-hot-toast';
@@ -39,7 +39,7 @@ const ResetPassword = () => {
     setIsLoading(true);
     try {
       // Backend expects PUT /api/auth/reset-password/:resetToken
-      const { data } = await axios.put(`/auth/reset-password/${resetToken}`, { password });
+      const { data } = await api.put(`/auth/reset-password/${resetToken}`, { password });
       if (data.success) {
         toast.success(data.message || 'Password reset successfully');
         navigate('/login');

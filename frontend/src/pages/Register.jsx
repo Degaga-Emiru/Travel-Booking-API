@@ -6,6 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiPhone, FiInfo } from 'react-icons/fi';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 const registerSchema = yup.object({
   firstName: yup.string().min(2, 'At least 2 characters').required('First name required'),
@@ -53,6 +54,7 @@ const Register = () => {
     setIsLoading(false);
     
     if (result.success) {
+      toast.success('Registration successful! Please verify your email.');
       navigate('/verify-email', { state: { email: data.email } });
     }
   };
