@@ -1,5 +1,6 @@
-const { Flight, Booking } = require('../models');
+const { Flight, Booking, sequelize } = require('../models');
 const { Op } = require('sequelize');
+const kiwiService = require('../utils/kiwiService');
 
 exports.getFlights = async (req, res, next) => {
   try {
@@ -65,10 +66,22 @@ exports.searchFlights = async (req, res, next) => {
       ]
     });
 
+    // 2. Fetch external flights from Kiwi API
+    const externalFlights = await kiwiService.searchFlights({
+      departure,
+      arrival,
+      date,
+      passengers,
+      flightClass: flightClass === 'economy' ? 'M' : flightClass === 'business' ? 'C' : 'F'
+    });
+    
+    // Combine results (Internal first, then external)
+    const allFlights = [...flights, ...externalFlights];
+
     res.status(200).json({
       success: true,
-      count: flights.length,
-      data: flights
+      count: allFlights.length,
+      data: allFlights
     });
   } catch (error) {
     next(error);

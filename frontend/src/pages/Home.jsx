@@ -9,33 +9,53 @@ import Newsletter from '../components/home/Newsletter';
 import { motion } from 'framer-motion';
 
 const Home = () => {
+  const fadeInUp = {
+    initial: { opacity: 0, y: 60 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-100px" },
+    transition: { duration: 0.8, ease: "easeOut" }
+  };
+
   return (
-    <div className="overflow-x-hidden">
-      {/* 🌄 Hero Section with Slide-in animations */}
+    <div className="overflow-x-hidden pt-16 md:pt-0">
+      {/* 🌄 Hero Section (Handled its own animations) */}
       <Hero />
 
       {/* 🏙 Featured Destinations */}
-      <FeaturedDestinations />
+      <motion.div {...fadeInUp}>
+        <FeaturedDestinations />
+      </motion.div>
 
       {/* ✈️ Experience / Why Choose Us */}
-      <Experience />
+      <motion.div {...fadeInUp}>
+        <Experience />
+      </motion.div>
 
       {/* 🏨 Popular Hotels */}
-      <PopularHotels />
+      <motion.div {...fadeInUp}>
+        <PopularHotels />
+      </motion.div>
 
       {/* ✈️ Airports Section */}
-      <Airports />
+      <motion.div {...fadeInUp}>
+        <Airports />
+      </motion.div>
 
       {/* 💬 Testimonials */}
-      <Testimonials />
+      <motion.div {...fadeInUp}>
+        <Testimonials />
+      </motion.div>
 
       {/* 📩 Newsletter */}
-      <Newsletter />
+      <motion.div {...fadeInUp}>
+        <Newsletter />
+      </motion.div>
 
       {/* Portfolio Demo Label */}
-      <div className="bg-gray-100 py-4 text-center">
-        <p className="text-gray-500 text-sm font-medium">
-          This is a demo travel booking platform for portfolio purposes.
+      <div className="bg-gray-100 py-6 text-center border-t border-gray-200">
+        <p className="text-gray-400 text-sm font-medium tracking-wide flex items-center justify-center">
+          <span className="w-2 h-2 bg-primary-500 rounded-full mr-2 animate-pulse"></span>
+          OFFICIAL DEMO • ETHIOPIAN TRAVEL PLATFORM 2026
         </p>
       </div>
     </div>

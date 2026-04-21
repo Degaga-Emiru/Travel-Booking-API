@@ -151,13 +151,22 @@ const sendPasswordReset = async (user, resetToken) => {
 const sendWelcomeEmail = async (user) => {
   const subject = 'Welcome to Travel Booking';
   
+  return await sendEmail(user.email, subject, 'welcome', templateData);
+};
+
+/**
+ * Send email verification OTP during registration
+ */
+const sendVerificationEmail = async (user, code) => {
+  const subject = 'Verify Your Email - Travel Booking';
+  
   const templateData = {
-    userName: user.getFullName(),
-    loginUrl: `${process.env.CLIENT_URL}/login`,
-    supportEmail: 'support@travelbooking.com',
+    userName: `${user.firstName} ${user.lastName}`,
+    otpCode: code,
+    supportEmail: 'support@travelbooking.com'
   };
 
-  return await sendEmail(user.email, subject, 'welcome', templateData);
+  return await sendEmail(user.email, subject, 'verifyEmail', templateData);
 };
 
 
@@ -188,5 +197,6 @@ module.exports = {
   sendBookingCancellation,
   sendPasswordResetOTP,
   sendPasswordUpdated,
-  sendPasswordResetSuccess
+  sendPasswordResetSuccess,
+  sendVerificationEmail
 };

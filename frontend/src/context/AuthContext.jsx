@@ -58,14 +58,9 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authAPI.register(userData);
-      const { token: newToken, data } = response.data;
       
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
-      setUser(data.user);
-      
-      toast.success('Registration successful!');
-      return { success: true };
+      toast.success(response.data.message || 'Registration successful! Please verify your email.');
+      return { success: true, data: response.data };
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed';
       toast.error(message);

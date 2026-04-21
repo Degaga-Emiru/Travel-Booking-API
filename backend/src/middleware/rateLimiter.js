@@ -1,12 +1,7 @@
 const rateLimit = require('express-rate-limit');
-const { RedisStore } = require('rate-limit-redis');
-const redisClient = require('../config/redis');
 
-// General rate limiter
+// Rate limiter (using default MemoryStore since Redis is removed)
 const generalLimiter = rateLimit({
-  store: new RedisStore({
-    sendCommand: (...args) => redisClient.call(...args),
-  }),
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: {
@@ -19,9 +14,6 @@ const generalLimiter = rateLimit({
 
 // Strict rate limiter for auth endpoints
 const authLimiter = rateLimit({
-  store: new RedisStore({
-    sendCommand: (...args) => redisClient.call(...args),
-  }),
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // Increased to 20 for auth to handle login + OTP combinations better
   message: {

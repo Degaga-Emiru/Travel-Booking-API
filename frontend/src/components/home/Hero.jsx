@@ -55,17 +55,26 @@ const Hero = () => {
             {/* Hero Content (Floating uniquely per slide or static) */}
             <div className="relative flex h-full items-center justify-center text-center px-4">
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.5 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
                 className="max-w-4xl"
               >
-                <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
+                <h1 className="text-6xl md:text-8xl font-black text-white mb-6 drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] tracking-tight">
+                  <span className="text-primary-400 block text-2xl md:text-3xl font-bold uppercase tracking-[0.3em] mb-4">Discover</span>
                   {slide.title}
                 </h1>
-                <p className="text-xl md:text-2xl text-primary-200 mb-8 font-medium drop-shadow-lg">
+                <p className="text-xl md:text-2xl text-white/90 mb-10 font-medium drop-shadow-md max-w-2xl mx-auto leading-relaxed">
                   {slide.subtitle}
                 </p>
+                <div className="flex justify-center gap-4">
+                   <button className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-xl hover:shadow-primary-600/40 active:scale-95">
+                     Book Your Journey
+                   </button>
+                   <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-2xl font-bold transition-all active:scale-95">
+                     Watch Video
+                   </button>
+                </div>
               </motion.div>
             </div>
           </SwiperSlide>
@@ -75,48 +84,48 @@ const Hero = () => {
       {/* Static Search Bar Overlay */}
       <div className="absolute bottom-16 left-0 right-0 z-20 px-4">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="max-w-5xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 md:p-8"
+          transition={{ duration: 1, delay: 1.2, type: "spring", damping: 20 }}
+          className="max-w-6xl mx-auto bg-white/10 backdrop-blur-2xl rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-1 border border-white/20"
         >
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase flex items-center">
-                <FiMapPin className="mr-1 text-primary-600" /> Destination
+          <div className="bg-white rounded-[1.8rem] p-6 md:p-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="space-y-3 group">
+              <label className="text-[10px] font-black text-gray-400 uppercase flex items-center tracking-widest group-hover:text-primary-600 transition-colors">
+                <FiMapPin className="mr-2 text-primary-500 text-lg" /> Destination
               </label>
               <input 
                 type="text" 
-                placeholder="Where are you going?" 
-                className="w-full bg-gray-100 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                placeholder="Where to?" 
+                className="w-full bg-gray-50/50 border-0 rounded-2xl px-5 py-4 text-gray-800 font-bold placeholder:text-gray-300 focus:ring-2 focus:ring-primary-500 underline-none transition-all text-lg"
               />
             </div>
             
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase flex items-center">
-                <FiCalendar className="mr-1 text-primary-600" /> Check-in / Out
+            <div className="space-y-3 group">
+              <label className="text-[10px] font-black text-gray-400 uppercase flex items-center tracking-widest group-hover:text-primary-600 transition-colors">
+                <FiCalendar className="mr-2 text-primary-500 text-lg" /> Dates
               </label>
               <input 
                 type="text" 
-                placeholder="Dates" 
-                className="w-full bg-gray-100 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                placeholder="Check in - Out" 
+                className="w-full bg-gray-50/50 border-0 rounded-2xl px-5 py-4 text-gray-800 font-bold placeholder:text-gray-300 focus:ring-2 focus:ring-primary-500 underline-none transition-all text-lg"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase flex items-center">
-                <FiUsers className="mr-1 text-primary-600" /> Guests
+            <div className="space-y-3 group">
+              <label className="text-[10px] font-black text-gray-400 uppercase flex items-center tracking-widest group-hover:text-primary-600 transition-colors">
+                <FiUsers className="mr-2 text-primary-500 text-lg" /> Travelers
               </label>
               <input 
                 type="text" 
-                placeholder="How many?" 
-                className="w-full bg-gray-100 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                placeholder="Add guests" 
+                className="w-full bg-gray-50/50 border-0 rounded-2xl px-5 py-4 text-gray-800 font-bold placeholder:text-gray-300 focus:ring-2 focus:ring-primary-500 underline-none transition-all text-lg"
               />
             </div>
 
             <div className="flex items-end">
-              <button className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl flex items-center justify-center transition-all hover:shadow-lg active:scale-95">
-                <FiSearch className="mr-2 text-xl" /> Search Now
+              <button className="w-full h-[68px] bg-primary-600 hover:bg-primary-700 text-white font-black rounded-2xl flex items-center justify-center transition-all hover:shadow-[0_10px_20px_rgba(37,99,235,0.3)] active:scale-95 text-lg uppercase tracking-wider">
+                <FiSearch className="mr-3 text-2xl" /> Find Now
               </button>
             </div>
           </div>
