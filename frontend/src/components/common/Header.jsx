@@ -22,9 +22,9 @@ const Header = () => {
 
   const navLinks = [
     { path: '/', label: 'Home' },
+    { path: '/cities', label: 'Explore Destinations' },
     { path: '/hotels', label: 'Hotels' },
     { path: '/flights', label: 'Flights' },
-    { path: '/cars', label: 'Cars' },
   ];
 
   if (isAuthenticated) {

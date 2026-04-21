@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from '../api/axios';
+import api from '../services/api';
 import { toast } from 'react-hot-toast';
 
 const VerifyEmail = () => {
@@ -33,7 +33,7 @@ const VerifyEmail = () => {
 
     setIsLoading(true);
     try {
-      const { data } = await axios.post('/auth/verify-email', { email, code });
+      const { data } = await api.post('/auth/verify-email', { email, code });
       if (data.success) {
         toast.success('Email verified successfully!');
         navigate('/login');

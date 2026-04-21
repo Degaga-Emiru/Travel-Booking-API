@@ -16,7 +16,9 @@ const errorHandler = (err, req, res, next) => {
 
   // Sequelize unique constraint error
   if (err.name === 'SequelizeUniqueConstraintError') {
-    const message = 'Duplicate field value entered';
+    const field = err.errors[0]?.path || 'field';
+    const value = err.errors[0]?.value || '';
+    const message = `Duplicate entry: The ${field} '${value}' is already in use.`;
     error = {
       message,
       statusCode: 400

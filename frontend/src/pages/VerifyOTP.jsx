@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import axios from '../api/axios';
+import api from '../services/api';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
@@ -31,7 +31,7 @@ const VerifyOTP = () => {
 
     setIsLoading(true);
     try {
-      const { data } = await axios.post('/auth/verify-otp', { email, otp });
+      const { data } = await api.post('/auth/verify-otp', { email, otp });
       if (data.success) {
         toast.success('OTP verified successfully!');
         // Usually returns a reset token, pass it to ResetPassword
@@ -47,7 +47,7 @@ const VerifyOTP = () => {
 
   const handleResend = async () => {
     try {
-      const { data } = await axios.post('/auth/resend-otp', { email });
+      const { data } = await api.post('/auth/resend-otp', { email });
       if (data.success) {
         setTimeLeft(300);
         toast.success('New OTP sent');

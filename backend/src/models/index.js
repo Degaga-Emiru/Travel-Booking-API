@@ -17,6 +17,7 @@ const RefreshToken = require('./RefreshToken');
 const LoginAttempt = require('./LoginAttempt');
 const PasswordHistory = require('./PasswordHistory');
 const Referral = require('./Referral');
+const UserVerification = require('./UserVerification');
 
 // Define associations
 User.hasMany(Booking, { foreignKey: 'userId' });
@@ -70,6 +71,9 @@ Referral.belongsTo(User, { as: 'Referrer', foreignKey: 'referrerId' });
 User.hasOne(Referral, { as: 'ReferredBy', foreignKey: 'referredId' });
 Referral.belongsTo(User, { as: 'Referred', foreignKey: 'referredId' });
 
+User.hasMany(UserVerification, { foreignKey: 'userId' });
+UserVerification.belongsTo(User, { foreignKey: 'userId' });
+
 module.exports = {
   sequelize,
   User,
@@ -87,5 +91,6 @@ module.exports = {
   RefreshToken,
   LoginAttempt,
   PasswordHistory,
-  Referral
+  Referral,
+  UserVerification
 };

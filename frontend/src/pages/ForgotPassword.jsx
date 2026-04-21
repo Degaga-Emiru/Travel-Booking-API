@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from '../api/axios';
+import api from '../services/api';
 import { FiMail } from 'react-icons/fi';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { toast } from 'react-hot-toast';
@@ -16,7 +16,7 @@ const ForgotPassword = () => {
 
     setIsLoading(true);
     try {
-      const { data } = await axios.post('/auth/forgot-password', { email });
+      const { data } = await api.post('/auth/forgot-password', { email });
       if (data.success) {
         toast.success(data.message || 'OTP sent to your email');
         // Let's redirect to OTP verification, passing email

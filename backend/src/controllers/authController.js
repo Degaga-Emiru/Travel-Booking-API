@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { User, PasswordReset, RefreshToken, LoginAttempt, PasswordHistory, Referral, Role } = require('../models');
-const redisClient = require('../config/redis');
+const { User, PasswordReset, RefreshToken, LoginAttempt, PasswordHistory, Referral, Role, UserVerification } = require('../models');
 const { 
-  sendWelcomeEmail, 
-  sendPasswordResetOTP, 
+  sendWelcomeEmail,
+  sendPasswordResetOTP,
   sendPasswordUpdated, 
-  sendPasswordResetSuccess 
+  sendPasswordResetSuccess,
+  sendVerificationEmail
 } = require('../utils/emailService');
 const { generateOTPWithExpiry, verifyOTP } = require('../utils/otpGenerator');
 const { Op } = require('sequelize');
@@ -43,7 +43,7 @@ const maskEmail = (email) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, phone, referralCode } = req.body;
+    const { firstName, lastName, email, password, phone } = req.body;
 
     const user = await User.create({
       firstName,
@@ -54,39 +54,39 @@ exports.register = async (req, res, next) => {
       role: 'customer' // Maintaining enum compatibility while creating UserRole association
     });
 
-    // Handle Referral System
-    if (referralCode) {
-      const referrer = await User.findOne({ where: { referralCode } });
-      if (referrer) {
-        await Referral.create({
-          referrerId: referrer.id,
-          referredId: user.id,
-          referralCode,
-          status: 'completed'
-        });
-        referrer.addLoyaltyPoints(500); // 500 points for successful referral
-      }
-    }
-
-    // Generate user's own referral code
-    const ownReferralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
-    user.referralCode = ownReferralCode;
-    await user.save();
 
     // Verify Email Code Setup
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
-    await redisClient.setex(`email_verify:${user.id}`, 24 * 60 * 60, verificationCode); // 24 hours expiry
+    
+    // Store in DB instead of Redis
+    await UserVerification.create({
+      userId: user.id,
+      email: user.email,
+      code: verificationCode,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours expiry
+    });
+    
+    // Send Verification Email (OTP)
+    sendVerificationEmail(user, verificationCode)
+      .then(() => {
+        console.log(`Verification OTP sent to ${user.email}`);
+      })
+      .catch((e) => {
+        console.error("Verification email failure:", e.message);
+      });
 
-    // Try to send email, but swallow error if ethereal/nodemailer fails locally
-    try {
-      await sendWelcomeEmail(user);
-      console.log(`Email Verification Code for ${user.email} is: ${verificationCode}`); // For easy dev test
-    } catch (e) {
-      console.log("Email mock failure, code:", verificationCode);
-    }
-
-    createSendToken(user, 201, res);
+    // Fire welcome email moved to verifyEmail
+    
+    // Instead of createSendToken, send a success message requiring verification
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Please check your email for the verification code.',
+      data: {
+        email: user.email
+      }
+    });
   } catch (error) {
+    console.error('REGISTRATION ERROR:', error);
     next(error);
   }
 };
@@ -395,18 +395,37 @@ exports.verifyEmail = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Email already verified' });
     }
 
-    const savedCode = await redisClient.get(`email_verify:${user.id}`);
+    const verification = await UserVerification.findOne({ 
+      where: { 
+        userId: user.id,
+        code: code,
+        expiresAt: { [Op.gt]: new Date() }
+      } 
+    });
     
-    if (!savedCode || savedCode !== code) {
+    if (!verification) {
       return res.status(400).json({ success: false, message: 'Invalid or expired verification code' });
     }
 
     user.isEmailVerified = true;
     await user.save();
     
-    await redisClient.del(`email_verify:${user.id}`);
+    // Delete all verification codes for this user
+    await UserVerification.destroy({ where: { userId: user.id } });
 
-    res.status(200).json({ success: true, message: 'Email verified successfully' });
+    // Send Welcome Email after successful verification
+    sendWelcomeEmail(user)
+      .then(() => {
+        console.log(`Welcome email sent to ${user.email} after verification.`);
+      })
+      .catch((e) => {
+        console.error("Welcome email failure:", e.message);
+      });
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Email verified successfully. You can now login.' 
+    });
   } catch (error) {
     next(error);
   }
@@ -671,18 +690,8 @@ exports.logout = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
     }
     
-    // Blacklist access token in Redis
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
-        const expiry = decoded.exp - Math.floor(Date.now() / 1000);
-        if (expiry > 0) {
-          await redisClient.setex(`bl_${token}`, expiry, token);
-        }
-      } catch (e) {
-        // Token might be invalid, ignore
-      }
-    }
+    // Blacklist access token (Removed Redis implementation)
+    // In a stateless JWT system without Redis, logout is primarily client-side (deleting cookies/localstorage)
 
     // Delete refresh token from DB
     if (refreshToken) {

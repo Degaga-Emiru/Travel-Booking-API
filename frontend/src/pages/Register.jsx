@@ -6,6 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiPhone, FiInfo } from 'react-icons/fi';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 const registerSchema = yup.object({
   firstName: yup.string().min(2, 'At least 2 characters').required('First name required'),
@@ -15,8 +16,7 @@ const registerSchema = yup.object({
   confirmPassword: yup.string()
     .oneOf([yup.ref('password'), null], 'Passwords must match')
     .required('Confirm your password'),
-  phone: yup.string().matches(/^\+?[\d\s\-\(\)]{10,}$/, 'Valid phone required').required('Phone required'),
-  referralCode: yup.string().optional()
+  phone: yup.string().matches(/^\+?[\d\s\-\(\)]{10,}$/, 'Valid phone required').required('Phone required')
 });
 
 const Register = () => {
@@ -54,6 +54,7 @@ const Register = () => {
     setIsLoading(false);
     
     if (result.success) {
+      toast.success('Registration successful! Please verify your email.');
       navigate('/verify-email', { state: { email: data.email } });
     }
   };
@@ -106,7 +107,7 @@ const Register = () => {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-1/2">
+              <div className="w-full">
                 <label className="block text-sm font-medium text-gray-700">Phone</label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -115,15 +116,6 @@ const Register = () => {
                   <input {...register('phone')} className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border" />
                 </div>
                 {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
-              </div>
-              <div className="w-1/2">
-                <label className="block text-sm font-medium text-gray-700 flex justify-between">Referral Code <span className="text-gray-400 text-xs">Optional</span></label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiInfo className="text-gray-400" />
-                  </div>
-                  <input {...register('referralCode')} className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border uppercase" />
-                </div>
               </div>
             </div>
 
