@@ -10,6 +10,8 @@ const userRoutes = require('./routes/users');
 const bookingRoutes = require('./routes/bookings');
 const flightRoutes = require('./routes/flights');
 const hotelRoutes = require('./routes/hotels');
+const adminRoutes = require('./routes/adminRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 
@@ -36,6 +38,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/flights', flightRoutes);
 app.use('/api/hotels', hotelRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

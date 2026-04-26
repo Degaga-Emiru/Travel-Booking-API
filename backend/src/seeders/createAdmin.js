@@ -20,7 +20,7 @@ const createAdminUser = async () => {
       firstName: 'Super',
       lastName: 'Admin',
       email: 'admin@travelbooking.com',
-      password: await bcrypt.hash('admin123', 12),
+      password: 'admin123',
       role: 'admin',
       phone: '+10000000000',
       isEmailVerified: true,

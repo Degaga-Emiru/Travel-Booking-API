@@ -24,6 +24,18 @@ import Profile from './pages/Profile';
 import CityDetail from './pages/CityDetail';
 import Cities from './pages/Cities';
 
+// Admin Pages
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import VendorManagement from './pages/admin/VendorManagement';
+import BookingManagement from './pages/admin/BookingManagement';
+import PaymentManagement from './pages/admin/PaymentManagement';
+import RefundManagement from './pages/admin/RefundManagement';
+import Support from './pages/admin/Support';
+import AuditLogs from './pages/admin/AuditLogs';
+import Settings from './pages/admin/Settings';
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -43,7 +55,22 @@ const PublicRoute = ({ children }) => {
     return <LoadingSpinner />;
   }
   
-  return !user ? children : <Navigate to="/dashboard" />;
+  if (user) {
+    return user.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/dashboard" />;
+  }
+  
+  return children;
+};
+
+// Admin Route Component
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+  
+  return (user && user.role === 'admin') ? children : <Navigate to="/" />;
 };
 
 function App() {
@@ -155,6 +182,28 @@ function App() {
             } 
           />
           
+          {/* Admin Routes */}
+          <Route 
+            path="/admin" 
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<Navigate to="dashboard" />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="vendors" element={<VendorManagement />} />
+            <Route path="services" element={<div>Service Management coming soon...</div>} />
+            <Route path="bookings" element={<BookingManagement />} />
+            <Route path="payments" element={<PaymentManagement />} />
+            <Route path="refunds" element={<RefundManagement />} />
+            <Route path="support" element={<Support />} />
+            <Route path="audit-logs" element={<AuditLogs />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

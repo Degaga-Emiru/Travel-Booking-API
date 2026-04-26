@@ -77,6 +77,16 @@ const Header = () => {
                 {/* Profile Dropdown */}
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    {user?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center px-4 py-2 text-sm text-blue-600 font-bold hover:bg-blue-50"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        <FiSettings className="mr-3 text-blue-600" />
+                        Admin Panel
+                      </Link>
+                    )}
                     <Link
                       to="/dashboard"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

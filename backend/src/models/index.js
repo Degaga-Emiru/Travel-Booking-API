@@ -18,6 +18,10 @@ const LoginAttempt = require('./LoginAttempt');
 const PasswordHistory = require('./PasswordHistory');
 const Referral = require('./Referral');
 const UserVerification = require('./UserVerification');
+const VendorProfile = require('./VendorProfile');
+const RefundRequest = require('./RefundRequest');
+const Message = require('./Message');
+const AuditLog = require('./AuditLog');
 
 // Define associations
 User.hasMany(Booking, { foreignKey: 'userId' });
@@ -74,6 +78,26 @@ Referral.belongsTo(User, { as: 'Referred', foreignKey: 'referredId' });
 User.hasMany(UserVerification, { foreignKey: 'userId' });
 UserVerification.belongsTo(User, { foreignKey: 'userId' });
 
+User.hasOne(VendorProfile, { foreignKey: 'userId' });
+VendorProfile.belongsTo(User, { foreignKey: 'userId' });
+
+Booking.hasMany(RefundRequest, { foreignKey: 'bookingId' });
+RefundRequest.belongsTo(Booking, { foreignKey: 'bookingId' });
+
+Payment.hasMany(RefundRequest, { foreignKey: 'paymentId' });
+RefundRequest.belongsTo(Payment, { foreignKey: 'paymentId' });
+
+User.hasMany(RefundRequest, { foreignKey: 'userId' });
+RefundRequest.belongsTo(User, { foreignKey: 'userId' });
+
+User.hasMany(Message, { as: 'SentMessages', foreignKey: 'senderId' });
+User.hasMany(Message, { as: 'ReceivedMessages', foreignKey: 'receiverId' });
+Message.belongsTo(User, { as: 'Sender', foreignKey: 'senderId' });
+Message.belongsTo(User, { as: 'Receiver', foreignKey: 'receiverId' });
+
+User.hasMany(AuditLog, { foreignKey: 'adminId' });
+AuditLog.belongsTo(User, { foreignKey: 'adminId' });
+
 module.exports = {
   sequelize,
   User,
@@ -92,5 +116,9 @@ module.exports = {
   LoginAttempt,
   PasswordHistory,
   Referral,
-  UserVerification
+  UserVerification,
+  VendorProfile,
+  RefundRequest,
+  Message,
+  AuditLog
 };

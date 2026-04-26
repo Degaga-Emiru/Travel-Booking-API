@@ -1,13 +1,21 @@
+const http = require('http');
 const app = require('./src/app');
 const { sequelize } = require('./src/models');
+const { initSocket } = require('./src/utils/socket');
 
 const PORT = process.env.PORT || 5000;
 
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize Socket.io
+initSocket(server);
+
 // Sync database and start server
-sequelize.sync({ force: false })
+sequelize.sync({ alter: true })
   .then(() => {
     console.log('Database synced successfully');
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   })

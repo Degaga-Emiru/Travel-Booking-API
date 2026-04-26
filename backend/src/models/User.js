@@ -40,8 +40,12 @@ const User = sequelize.define('User', {
     }
   },
   role: {
-    type: DataTypes.ENUM('customer', 'admin', 'agent'),
+    type: DataTypes.ENUM('customer', 'admin', 'vendor'),
     defaultValue: 'customer'
+  },
+  isBlocked: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   phone: {
     type: DataTypes.STRING,

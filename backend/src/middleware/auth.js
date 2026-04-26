@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { User, Role } = require('../models');
+
 const protect = async (req, res, next) => {
   try {
     let token;
@@ -33,6 +34,13 @@ const protect = async (req, res, next) => {
         return res.status(401).json({
           success: false,
           message: 'Account is deactivated'
+        });
+      }
+
+      if (user.isBlocked) {
+        return res.status(401).json({
+          success: false,
+          message: 'Your account has been blocked. Please contact support.'
         });
       }
 
@@ -88,8 +96,30 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
+const isAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Admin only.'
+    });
+  }
+  next();
+};
+
+const isVendor = (req, res, next) => {
+  if (req.user.role !== 'vendor' && req.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Vendor only.'
+    });
+  }
+  next();
+};
+
 module.exports = {
   protect,
   authorize,
+  isAdmin,
+  isVendor,
   optionalAuth
 };
