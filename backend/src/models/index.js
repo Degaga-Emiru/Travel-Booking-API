@@ -22,6 +22,8 @@ const VendorProfile = require('./VendorProfile');
 const RefundRequest = require('./RefundRequest');
 const Message = require('./Message');
 const AuditLog = require('./AuditLog');
+const CarRental = require('./CarRental');
+const PayoutRequest = require('./PayoutRequest');
 
 // Define associations
 User.hasMany(Booking, { foreignKey: 'userId' });
@@ -81,6 +83,19 @@ UserVerification.belongsTo(User, { foreignKey: 'userId' });
 User.hasOne(VendorProfile, { foreignKey: 'userId' });
 VendorProfile.belongsTo(User, { foreignKey: 'userId' });
 
+// Vendor Associations
+VendorProfile.hasMany(Hotel, { foreignKey: 'vendorId' });
+Hotel.belongsTo(VendorProfile, { foreignKey: 'vendorId' });
+
+VendorProfile.hasMany(Flight, { foreignKey: 'vendorId' });
+Flight.belongsTo(VendorProfile, { foreignKey: 'vendorId' });
+
+VendorProfile.hasMany(CarRental, { foreignKey: 'vendorId' });
+CarRental.belongsTo(VendorProfile, { foreignKey: 'vendorId' });
+
+VendorProfile.hasMany(PayoutRequest, { foreignKey: 'vendorId' });
+PayoutRequest.belongsTo(VendorProfile, { foreignKey: 'vendorId' });
+
 Booking.hasMany(RefundRequest, { foreignKey: 'bookingId' });
 RefundRequest.belongsTo(Booking, { foreignKey: 'bookingId' });
 
@@ -120,5 +135,7 @@ module.exports = {
   VendorProfile,
   RefundRequest,
   Message,
-  AuditLog
+  AuditLog,
+  CarRental,
+  PayoutRequest
 };

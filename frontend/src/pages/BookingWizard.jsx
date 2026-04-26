@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiCheck, FiArrowRight, FiArrowLeft, FiCreditCard, FiUser, FiInfo } from 'react-icons/fi';
-import api from '../../services/api';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 

@@ -89,6 +89,16 @@ const Header = () => {
                         Admin Panel
                       </Link>
                     )}
+                    {user?.role === 'vendor' && (
+                      <Link
+                        to="/vendor"
+                        className="flex items-center px-4 py-2 text-sm text-primary-600 font-bold hover:bg-primary-50"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        <FiSettings className="mr-3 text-primary-600" />
+                        Vendor Hub
+                      </Link>
+                    )}
                     <Link
                       to="/dashboard"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

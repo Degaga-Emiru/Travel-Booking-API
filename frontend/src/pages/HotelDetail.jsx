@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiMapPin, FiStar, FiWifi, FiCoffee, FiTv, FiWind, FiCalendar, FiUsers, FiCheckCircle } from 'react-icons/fi';
-import api from '../../services/api';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import api from '../services/api';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import { motion } from 'framer-motion';
 
 const HotelDetail = () => {

@@ -41,6 +41,18 @@ import Support from './pages/admin/Support';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
 import ChatWidget from './components/common/ChatWidget';
+import VendorLayout from './components/vendor/VendorLayout';
+import VendorDashboard from './pages/vendor/VendorDashboard';
+import BusinessVerification from './pages/vendor/BusinessVerification';
+import VendorHotels from './pages/vendor/VendorHotels';
+import AddHotel from './pages/vendor/AddHotel';
+import VendorFlights from './pages/vendor/VendorFlights';
+import AddFlight from './pages/vendor/AddFlight';
+import VendorCars from './pages/vendor/VendorCars';
+import AddCar from './pages/vendor/AddCar';
+import VendorBookings from './pages/vendor/VendorBookings';
+import VendorEarnings from './pages/vendor/VendorEarnings';
+import VendorChat from './pages/vendor/VendorChat';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -62,7 +74,9 @@ const PublicRoute = ({ children }) => {
   }
   
   if (user) {
-    return user.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/dashboard" />;
+    if (user.role === 'admin') return <Navigate to="/admin" />;
+    if (user.role === 'vendor') return <Navigate to="/vendor" />;
+    return <Navigate to="/dashboard" />;
   }
   
   return children;
@@ -207,6 +221,22 @@ function App() {
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="settings" element={<Settings />} />
           </Route>
+
+            {/* Vendor Routes */}
+            <Route path="/vendor" element={<ProtectedRoute><VendorLayout /></ProtectedRoute>}>
+              <Route index element={<VendorDashboard />} />
+              <Route path="dashboard" element={<VendorDashboard />} />
+              <Route path="verification" element={<BusinessVerification />} />
+              <Route path="hotels" element={<VendorHotels />} />
+              <Route path="hotels/add" element={<AddHotel />} />
+              <Route path="flights" element={<VendorFlights />} />
+              <Route path="flights/add" element={<AddFlight />} />
+              <Route path="cars" element={<VendorCars />} />
+              <Route path="cars/add" element={<AddCar />} />
+              <Route path="bookings" element={<VendorBookings />} />
+              <Route path="earnings" element={<VendorEarnings />} />
+              <Route path="chat" element={<VendorChat />} />
+            </Route>
 
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" />} />

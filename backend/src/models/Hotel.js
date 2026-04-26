@@ -7,6 +7,14 @@ const Hotel = sequelize.define('Hotel', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
+  vendorId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: 'VendorProfiles',
+      key: 'id'
+    }
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false

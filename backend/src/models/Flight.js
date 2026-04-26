@@ -7,6 +7,14 @@ const Flight = sequelize.define('Flight', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
+  vendorId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: 'VendorProfiles',
+      key: 'id'
+    }
+  },
   airline: {
     type: DataTypes.STRING,
     allowNull: false

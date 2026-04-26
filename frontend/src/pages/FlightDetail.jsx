@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiPlane, FiClock, FiShield, FiBriefcase, FiArrowRight } from 'react-icons/fi';
-import api from '../../services/api';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { FiSend, FiClock, FiShield, FiBriefcase, FiArrowRight } from 'react-icons/fi';
+import api from '../services/api';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import { motion } from 'framer-motion';
 
 const FlightDetail = () => {
@@ -54,7 +54,7 @@ const FlightDetail = () => {
             <div className="flex-1 px-10 flex flex-col items-center">
               <p className="text-xs opacity-40 font-bold mb-2">Non-stop • 2h 45m</p>
               <div className="w-full h-px bg-white/20 relative">
-                <FiPlane className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-400 rotate-90 text-2xl" />
+                <FiSend className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-400 rotate-90 text-2xl" />
               </div>
             </div>
             <div className="text-center">

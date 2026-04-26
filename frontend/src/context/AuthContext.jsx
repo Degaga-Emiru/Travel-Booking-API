@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
     updatePassword,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
-    isAgent: user?.role === 'agent',
+    isVendor: user?.role === 'vendor',
   };
 
   return (
