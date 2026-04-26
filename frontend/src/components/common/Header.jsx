@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FiMenu, FiX, FiUser, FiLogOut, FiSettings } from 'react-icons/fi';
+import { FiMenu, FiX, FiUser, FiLogOut, FiSettings, FiBell } from 'react-icons/fi';
+import NotificationDrawer from './NotificationDrawer';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -129,6 +131,20 @@ const Header = () => {
                 </Link>
               </div>
             )}
+            {/* Notification Bell */}
+            {isAuthenticated && (
+              <div className="relative group">
+                <button 
+                  onClick={() => setIsNotifOpen(true)}
+                  className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-full transition-all relative"
+                >
+                  <FiBell size={22} />
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                    3
+                  </span>
+                </button>
+              </div>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -180,6 +196,7 @@ const Header = () => {
           </div>
         )}
       </div>
+      <NotificationDrawer isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
     </header>
   );
 };

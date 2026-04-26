@@ -23,6 +23,11 @@ import Bookings from './pages/Bookings';
 import Profile from './pages/Profile';
 import CityDetail from './pages/CityDetail';
 import Cities from './pages/Cities';
+import HotelDetail from './pages/HotelDetail';
+import FlightDetail from './pages/FlightDetail';
+import BookingWizard from './pages/BookingWizard';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailed from './pages/PaymentFailed';
 
 // Admin Pages
 import AdminLayout from './components/admin/AdminLayout';
@@ -35,6 +40,7 @@ import RefundManagement from './pages/admin/RefundManagement';
 import Support from './pages/admin/Support';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
+import ChatWidget from './components/common/ChatWidget';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -173,14 +179,12 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/profile" 
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } 
-          />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/hotels/:id" element={<ProtectedRoute><HotelDetail /></ProtectedRoute>} />
+            <Route path="/flights/:id" element={<ProtectedRoute><FlightDetail /></ProtectedRoute>} />
+            <Route path="/booking/:type/:id" element={<ProtectedRoute><BookingWizard /></ProtectedRoute>} />
+            <Route path="/payment/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+            <Route path="/payment/failed" element={<ProtectedRoute><PaymentFailed /></ProtectedRoute>} />
           
           {/* Admin Routes */}
           <Route 
@@ -209,6 +213,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
+      <ChatWidget />
     </div>
   );
 }

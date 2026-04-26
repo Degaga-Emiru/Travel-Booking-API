@@ -7,7 +7,9 @@ import toast from 'react-hot-toast';
 
 const BookingCard = ({ booking, onUpdate }) => {
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
+  const [review, setReview] = useState({ rating: 5, comment: '' });
   const queryClient = useQueryClient();
 
   const cancelMutation = useMutation({
@@ -30,6 +32,22 @@ const BookingCard = ({ booking, onUpdate }) => {
       return;
     }
     cancelMutation.mutate();
+  };
+
+  const handleReviewSubmit = async () => {
+    try {
+      await api.post('/reviews', {
+        ...review,
+        bookingId: booking.id,
+        targetId: booking.hotelId || booking.flightId || booking.packageId,
+        targetType: booking.bookingType
+      });
+      toast.success('Review submitted successfully!');
+      setShowReviewModal(false);
+      onUpdate();
+    } catch (error) {
+      toast.error('Failed to submit review');
+    }
   };
 
   const getBookingDetails = () => {
@@ -153,6 +171,15 @@ const BookingCard = ({ booking, onUpdate }) => {
               </button>
             )}
 
+            {booking.status === 'completed' && (
+              <button
+                onClick={() => setShowReviewModal(true)}
+                className="btn-primary text-sm bg-amber-500 hover:bg-amber-600 border-none"
+              >
+                Leave Review
+              </button>
+            )}
+
             <button className="btn-secondary text-sm">
               View Details
             </button>
@@ -207,6 +234,41 @@ const BookingCard = ({ booking, onUpdate }) => {
               >
                 {cancelMutation.isLoading ? 'Cancelling...' : 'Confirm Cancellation'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-2xl space-y-6">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Rate Your Experience</h3>
+              <p className="text-sm text-gray-500">How was your stay at {details.title}?</p>
+            </div>
+
+            <div className="flex justify-center space-x-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => setReview({ ...review, rating: star })}
+                  className={`text-4xl transition-all ${review.rating >= star ? 'text-amber-400' : 'text-gray-200'}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl h-32 outline-none focus:ring-2 focus:ring-amber-400"
+              placeholder="Tell us more about your experience..."
+              value={review.comment}
+              onChange={(e) => setReview({ ...review, comment: e.target.value })}
+            />
+
+            <div className="flex gap-4">
+              <button onClick={() => setShowReviewModal(false)} className="flex-1 py-4 border border-gray-200 rounded-2xl font-bold text-gray-500">Cancel</button>
+              <button onClick={handleReviewSubmit} className="flex-[2] py-4 bg-slate-900 text-white rounded-2xl font-bold">Submit Review</button>
             </div>
           </div>
         </div>

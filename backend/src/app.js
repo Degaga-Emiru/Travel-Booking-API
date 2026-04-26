@@ -10,6 +10,11 @@ const userRoutes = require('./routes/users');
 const bookingRoutes = require('./routes/bookings');
 const flightRoutes = require('./routes/flights');
 const hotelRoutes = require('./routes/hotels');
+const packageRoutes = require('./routes/packages');
+const destinationRoutes = require('./routes/destinations');
+const paymentRoutes = require('./routes/payments');
+const reviewRoutes = require('./routes/reviews');
+const notificationRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/adminRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 
@@ -38,6 +43,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/flights', flightRoutes);
 app.use('/api/hotels', hotelRoutes);
+app.use('/api/packages', packageRoutes);
+app.use('/api/destinations', destinationRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
 
@@ -53,7 +63,6 @@ app.get('/api/health', (req, res) => {
 // Error handling
 app.use(errorHandler);
 
-// 404 handler
 // 404 handler
 app.use((req, res, next) => {
   res.status(404).json({
