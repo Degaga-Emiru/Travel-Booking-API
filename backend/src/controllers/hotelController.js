@@ -1,4 +1,4 @@
-const { Hotel, Review, Booking, Destination } = require('../models');
+const { Hotel, Review, Booking, Destination, VendorProfile } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getHotels = async (req, res, next) => {
@@ -129,6 +129,27 @@ exports.getHotelReviews = async (req, res, next) => {
 
 exports.createHotel = async (req, res, next) => {
   try {
+    // If user is a vendor, associate with their vendor profile and check verification
+    if (req.user.role === 'vendor') {
+      const vendor = await VendorProfile.findOne({ where: { userId: req.user.id } });
+      
+      if (!vendor) {
+        return res.status(404).json({
+          success: false,
+          message: 'Vendor profile not found'
+        });
+      }
+
+      if (vendor.status !== 'approved') {
+        return res.status(403).json({
+          success: false,
+          message: 'Your vendor account is not yet approved. Please complete business verification.'
+        });
+      }
+
+      req.body.vendorId = vendor.id;
+    }
+
     const hotel = await Hotel.create(req.body);
 
     res.status(201).json({

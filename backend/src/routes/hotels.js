@@ -24,10 +24,10 @@ router.get('/:id/reviews', optionalAuth, getHotelReviews);
 // Protected routes
 router.use(protect);
 
-// Admin and agent routes
-router.post('/', authorize('admin', 'agent'), createHotel);
-router.get('/admin/stats', authorize('admin', 'agent'), getHotelStats);
-router.put('/:id', authorize('admin', 'agent'), updateHotel);
-router.delete('/:id', authorize('admin', 'agent'), deleteHotel);
+// Admin, agent, and vendor routes
+router.post('/', authorize('admin', 'agent', 'vendor'), createHotel);
+router.get('/admin/stats', authorize('admin', 'agent', 'vendor'), getHotelStats);
+router.put('/:id', authorize('admin', 'agent', 'vendor'), updateHotel);
+router.delete('/:id', authorize('admin', 'agent', 'vendor'), deleteHotel);
 
 module.exports = router;

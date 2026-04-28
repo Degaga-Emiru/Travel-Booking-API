@@ -110,7 +110,7 @@ exports.getAllVendors = async (req, res, next) => {
 // @access  Private/Admin
 exports.updateVendorStatus = async (req, res, next) => {
   try {
-    const { status, commissionRate } = req.body;
+    const { status, commissionRate, rejectionReason } = req.body;
     const vendor = await VendorProfile.findByPk(req.params.id);
 
     if (!vendor) {
@@ -119,6 +119,11 @@ exports.updateVendorStatus = async (req, res, next) => {
 
     vendor.status = status;
     if (commissionRate) vendor.commissionRate = commissionRate;
+    if (status === 'rejected' && rejectionReason) {
+      vendor.rejectionReason = rejectionReason;
+    } else if (status === 'verified') {
+      vendor.rejectionReason = null; // Clear rejection reason upon verification
+    }
     await vendor.save();
 
     // Log action
@@ -127,12 +132,12 @@ exports.updateVendorStatus = async (req, res, next) => {
       `VENDOR_${status.toUpperCase()}`,
       'VendorProfile',
       vendor.id,
-      { status, commissionRate },
+      { status, commissionRate, rejectionReason },
       req.ip
     );
 
-    // If approved, ensure user role is vendor
-    if (status === 'approved') {
+    // If verified, ensure user role is vendor
+    if (status === 'verified') {
       const user = await User.findByPk(vendor.userId);
       if (user && user.role !== 'vendor') {
         user.role = 'vendor';
@@ -343,8 +348,8 @@ exports.getAuditLogs = async (req, res, next) => {
 exports.getDashboardStats = async (req, res, next) => {
   try {
     const totalUsers = await User.count();
-    const totalVendors = await VendorProfile.count({ where: { status: 'approved' } });
-    const pendingVendors = await VendorProfile.count({ where: { status: 'pending' } });
+    const totalVendors = await VendorProfile.count({ where: { status: 'verified' } });
+    const pendingVendors = await VendorProfile.count({ where: { status: 'pending_verification' } });
     const totalBookings = await Booking.count();
     const totalRevenue = await Payment.sum('amount', { where: { status: 'completed' } }) || 0;
     const pendingRefunds = await RefundRequest.count({ where: { status: 'pending' } });

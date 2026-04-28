@@ -130,6 +130,10 @@ const Flight = sequelize.define('Flight', {
   isActive: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
+  },
+  images: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    defaultValue: []
   }
 }, {
   indexes: [

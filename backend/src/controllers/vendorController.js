@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 exports.getDashboardStats = async (req, res, next) => {
   try {
     const vendor = await VendorProfile.findOne({ where: { userId: req.user.id } });
-    if (!vendor) return res.status(404).json({ success: false, message: 'Vendor profile not found' });
+    if (!vendor) return res.status(200).json({ success: true, data: { stats: { totalBookings: 0, totalRevenue: 0, payoutBalance: 0, rating: 0 } } });
 
     // Total Bookings for this vendor's services
     const hotelIds = (await Hotel.findAll({ where: { vendorId: vendor.id }, attributes: ['id'] })).map(h => h.id);
@@ -31,6 +31,20 @@ exports.getDashboardStats = async (req, res, next) => {
           rating: vendor.rating
         }
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getProfile = async (req, res, next) => {
+  try {
+    const vendor = await VendorProfile.findOne({ where: { userId: req.user.id } });
+    if (!vendor) return res.status(404).json({ success: false, message: 'Vendor profile not found' });
+
+    res.status(200).json({
+      success: true,
+      data: vendor
     });
   } catch (error) {
     next(error);
@@ -87,6 +101,7 @@ exports.requestPayout = async (req, res, next) => {
 exports.getVendorBookings = async (req, res, next) => {
   try {
     const vendor = await VendorProfile.findOne({ where: { userId: req.user.id } });
+    if (!vendor) return res.status(200).json({ success: true, data: [] });
     
     const hotelIds = (await Hotel.findAll({ where: { vendorId: vendor.id }, attributes: ['id'] })).map(h => h.id);
     const flightIds = (await Flight.findAll({ where: { vendorId: vendor.id }, attributes: ['id'] })).map(f => f.id);
@@ -113,12 +128,21 @@ exports.getVendorBookings = async (req, res, next) => {
 
 exports.getMyHotels = async (req, res) => {
   const vendor = await VendorProfile.findOne({ where: { userId: req.user.id } });
+  if (!vendor) return res.json({ success: true, data: [] });
   const hotels = await Hotel.findAll({ where: { vendorId: vendor.id } });
   res.json({ success: true, data: hotels });
 };
 
 exports.getMyFlights = async (req, res) => {
   const vendor = await VendorProfile.findOne({ where: { userId: req.user.id } });
+  if (!vendor) return res.json({ success: true, data: [] });
   const flights = await Flight.findAll({ where: { vendorId: vendor.id } });
   res.json({ success: true, data: flights });
+};
+
+exports.getMyCars = async (req, res) => {
+  const vendor = await VendorProfile.findOne({ where: { userId: req.user.id } });
+  if (!vendor) return res.json({ success: true, data: [] });
+  const cars = await CarRental.findAll({ where: { vendorId: vendor.id } });
+  res.json({ success: true, data: cars });
 };

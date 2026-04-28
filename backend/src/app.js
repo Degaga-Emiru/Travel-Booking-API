@@ -18,6 +18,7 @@ const notificationRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/adminRoutes');
 const vendorRoutes = require('./routes/vendorRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const carRoutes = require('./routes/cars');
 
 const errorHandler = require('./middleware/errorHandler');
 
@@ -52,6 +53,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/cars', carRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -2,6 +2,7 @@ import React from 'react';
 import Hero from '../components/home/Hero';
 import FeaturedDestinations from '../components/home/FeaturedDestinations';
 import PopularHotels from '../components/home/PopularHotels';
+import PopularFlights from '../components/home/PopularFlights';
 import Airports from '../components/home/Airports';
 import Experience from '../components/home/Experience';
 import Testimonials from '../components/home/Testimonials';
@@ -34,6 +35,11 @@ const Home = () => {
       {/* 🏨 Popular Hotels */}
       <motion.div {...fadeInUp}>
         <PopularHotels />
+      </motion.div>
+
+      {/* ✈️ Popular Flights */}
+      <motion.div {...fadeInUp}>
+        <PopularFlights />
       </motion.div>
 
       {/* ✈️ Airports Section */}

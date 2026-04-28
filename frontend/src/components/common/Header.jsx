@@ -33,16 +33,34 @@ const Header = () => {
     navLinks.push({ path: '/bookings', label: 'My Bookings' });
   }
 
+  const getHeaderStyles = () => {
+    if (user?.role === 'admin') return 'bg-slate-900 border-slate-800 text-white';
+    if (user?.role === 'vendor') return 'bg-indigo-900 border-indigo-800 text-white';
+    return 'bg-white border-gray-200';
+  };
+
+  const getLogoStyles = () => {
+    if (user?.role === 'admin') return 'bg-amber-500';
+    if (user?.role === 'vendor') return 'bg-emerald-500';
+    return 'bg-primary-500';
+  };
+
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className={`${getHeaderStyles()} shadow-lg border-b sticky top-0 z-50 transition-all duration-300`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">TB</span>
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className={`${getLogoStyles()} w-10 h-10 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+              <span className="text-white font-black text-lg">TB</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">TravelBooking</span>
+            <div className="flex flex-col">
+              <span className={`text-xl font-black tracking-tight ${user?.role === 'admin' || user?.role === 'vendor' ? 'text-white' : 'text-slate-900'}`}>
+                TravelBooking
+              </span>
+              {user?.role === 'admin' && <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest -mt-1">Administration</span>}
+              {user?.role === 'vendor' && <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest -mt-1">Vendor Portal</span>}
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -51,7 +69,11 @@ const Header = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`nav-link ${isActiveLink(link.path) ? 'active' : ''}`}
+                className={`text-sm font-bold tracking-tight transition-all hover:opacity-70 ${
+                  isActiveLink(link.path) 
+                    ? (user?.role === 'admin' || user?.role === 'vendor' ? 'text-white border-b-2 border-white pb-1' : 'text-primary-600')
+                    : (user?.role === 'admin' || user?.role === 'vendor' ? 'text-gray-300' : 'text-gray-600')
+                }`}
               >
                 {link.label}
               </Link>
@@ -64,14 +86,18 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-2 transition-colors duration-200"
+                  className={`flex items-center space-x-3 rounded-2xl px-4 py-2 transition-all duration-200 border ${
+                    user?.role === 'admin' || user?.role === 'vendor' 
+                      ? 'bg-white/10 border-white/20 hover:bg-white/20' 
+                      : 'bg-gray-50 border-gray-100 hover:bg-gray-100'
+                  }`}
                 >
-                  <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
+                  <div className={`w-9 h-9 ${getLogoStyles()} rounded-xl flex items-center justify-center shadow-inner`}>
+                    <span className="text-white text-xs font-black uppercase">
                       {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                     </span>
                   </div>
-                  <span className="hidden sm:block text-sm font-medium text-gray-700">
+                  <span className={`hidden sm:block text-sm font-black ${user?.role === 'admin' || user?.role === 'vendor' ? 'text-white' : 'text-slate-700'}`}>
                     {user?.firstName}
                   </span>
                 </button>

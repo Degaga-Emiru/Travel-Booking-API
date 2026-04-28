@@ -43,16 +43,36 @@ const AddHotel = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/hotels', {
+      const hotelData = {
         ...formData,
-        availableRooms: formData.totalRooms // Default all rooms available
-      });
+        availableRooms: formData.totalRooms,
+        images: formData.images.filter(img => img.trim() !== '')
+      };
+      await api.post('/hotels', hotelData);
       toast.success('Hotel listing created successfully!');
       navigate('/vendor/hotels');
     } catch (error) {
-      toast.error('Failed to create hotel listing');
+      const message = error.response?.data?.message || 'Failed to create hotel listing';
+      toast.error(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageChange = (index, value) => {
+    const newImages = [...formData.images];
+    newImages[index] = value;
+    setFormData({ ...formData, images: newImages });
+  };
+
+  const addImageField = () => {
+    setFormData({ ...formData, images: [...formData.images, ''] });
+  };
+
+  const removeImageField = (index) => {
+    if (formData.images.length > 1) {
+      const newImages = formData.images.filter((_, i) => i !== index);
+      setFormData({ ...formData, images: newImages });
     }
   };
 
@@ -107,6 +127,40 @@ const AddHotel = () => {
                   <input type="text" className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-sm" value={formData.country} onChange={e => setFormData({...formData, country: e.target.value})} required />
                 </div>
               </div>
+            </div>
+          </div>
+          {/* Images */}
+          <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100 space-y-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                 <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"><FiImage /></div>
+                 <h3 className="text-xl font-black text-slate-900">Hotel Images</h3>
+              </div>
+              <button type="button" onClick={addImageField} className="flex items-center space-x-2 text-primary-600 font-bold text-sm hover:underline">
+                <FiPlus /> <span>Add More</span>
+              </button>
+            </div>
+            <div className="space-y-4">
+              {formData.images.map((img, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <div className="flex-1 space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Image URL {index + 1}</label>
+                    <input 
+                      type="url" 
+                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-sm" 
+                      placeholder="https://images.unsplash.com/photo..."
+                      value={img} 
+                      onChange={e => handleImageChange(index, e.target.value)} 
+                      required 
+                    />
+                  </div>
+                  {formData.images.length > 1 && (
+                    <button type="button" onClick={() => removeImageField(index)} className="mt-6 p-4 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all">
+                      <FiX />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -77,8 +77,12 @@ const VendorProfile = sequelize.define('VendorProfile', {
     }
   },
   status: {
-    type: DataTypes.ENUM('pending', 'approved', 'rejected', 'suspended'),
-    defaultValue: 'pending'
+    type: DataTypes.STRING,
+    defaultValue: 'pending_verification'
+  },
+  rejectionReason: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   commissionRate: {
     type: DataTypes.DECIMAL(5, 2),
