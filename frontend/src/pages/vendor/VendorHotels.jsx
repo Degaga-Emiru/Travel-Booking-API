@@ -45,7 +45,7 @@ const VendorHotels = () => {
             className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden group"
           >
             <div className="relative h-56 overflow-hidden">
-               <img src={hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={hotel.name} />
+               <img src={hotel.Images?.[0]?.url || 'https://images.unsplash.com/photo-1566073771259-6a8506099945'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={hotel.name} />
                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase flex items-center text-amber-600 shadow-sm">
                   <FiStar className="mr-1 fill-amber-600" /> {hotel.starRating} Stars
                </div>
@@ -71,9 +71,9 @@ const VendorHotels = () => {
                </div>
 
                <div className="flex items-center space-x-2">
-                  <button className="flex-1 py-3 bg-gray-50 text-slate-900 rounded-xl font-bold text-xs hover:bg-gray-100 transition-all flex items-center justify-center">
+                  <Link to={`/vendor/hotels/edit/${hotel.id}`} className="flex-1 py-3 bg-gray-50 text-slate-900 rounded-xl font-bold text-xs hover:bg-gray-100 transition-all flex items-center justify-center">
                      <FiEdit className="mr-2" /> Edit
-                  </button>
+                  </Link>
                   <button className="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 transition-all">
                      <FiTrash2 />
                   </button>

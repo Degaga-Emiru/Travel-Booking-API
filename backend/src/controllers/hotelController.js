@@ -1,5 +1,6 @@
-const { Hotel, Review, Booking, Destination, VendorProfile } = require('../models');
+const { Hotel, Review, Booking, Destination, VendorProfile, Image, User } = require('../models');
 const { Op } = require('sequelize');
+const { createNotification } = require('./notificationController');
 
 exports.getHotels = async (req, res, next) => {
   try {
@@ -8,9 +9,11 @@ exports.getHotels = async (req, res, next) => {
 
     const hotels = await Hotel.findAndCountAll({
       where: { isActive: true },
+      include: [{ model: Image, as: 'Images' }],
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['averageRating', 'DESC']]
+      order: [['averageRating', 'DESC']],
+      distinct: true
     });
 
     res.status(200).json({
@@ -69,6 +72,7 @@ exports.getHotel = async (req, res, next) => {
   try {
     const hotel = await Hotel.findByPk(req.params.id, {
       include: [
+        { model: Image, as: 'Images' },
         {
           model: Review,
           include: [{
@@ -140,7 +144,7 @@ exports.createHotel = async (req, res, next) => {
         });
       }
 
-      if (vendor.status !== 'approved') {
+      if (vendor.status !== 'verified') {
         return res.status(403).json({
           success: false,
           message: 'Your vendor account is not yet approved. Please complete business verification.'
@@ -151,6 +155,25 @@ exports.createHotel = async (req, res, next) => {
     }
 
     const hotel = await Hotel.create(req.body);
+
+    if (req.body.Images && req.body.Images.length > 0) {
+      const imageRecords = req.body.Images.map(img => ({
+        url: img.url,
+        category: img.category || 'General',
+        relatedId: hotel.id,
+        relatedType: 'Hotel'
+      }));
+      await Image.bulkCreate(imageRecords);
+    }
+
+    // Notify the vendor
+    await createNotification(
+      req.user.id,
+      'system',
+      'Hotel Created',
+      `Your hotel listing for ${hotel.name} has been successfully created.`,
+      hotel.id
+    );
 
     res.status(201).json({
       success: true,
@@ -173,6 +196,19 @@ exports.updateHotel = async (req, res, next) => {
     }
 
     await hotel.update(req.body);
+
+    if (req.body.Images) {
+      await Image.destroy({ where: { relatedId: hotel.id, relatedType: 'Hotel' } });
+      if (req.body.Images.length > 0) {
+        const imageRecords = req.body.Images.map(img => ({
+          url: img.url,
+          category: img.category || 'General',
+          relatedId: hotel.id,
+          relatedType: 'Hotel'
+        }));
+        await Image.bulkCreate(imageRecords);
+      }
+    }
 
     res.status(200).json({
       success: true,

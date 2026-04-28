@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiSend, FiMapPin, FiClock, FiDollarSign, FiArrowLeft, FiUser, FiImage, FiX } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FiPlus, FiSend, FiMapPin, FiClock, FiDollarSign, FiArrowLeft, FiImage, FiX } from 'react-icons/fi';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { motion } from 'framer-motion';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const AddFlight = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEdit = !!id;
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(isEdit);
+
   const [formData, setFormData] = useState({
     airline: '',
     airlineCode: '',
@@ -27,8 +31,54 @@ const AddFlight = () => {
     economySeats: 150,
     businessSeats: 20,
     firstClassSeats: 10,
-    images: ['']
+    Images: [{ url: '', category: 'Exterior' }]
   });
+
+  const imageCategories = ['Exterior', 'Cabin', 'Seat', 'Meal', 'General'];
+
+  useEffect(() => {
+    if (isEdit) {
+      fetchFlight();
+    }
+  }, [id]);
+
+  const fetchFlight = async () => {
+    try {
+      const response = await api.get(`/flights/${id}`);
+      const flight = response.data.data;
+      
+      const formatDateTime = (dateStr) => dateStr ? new Date(dateStr).toISOString().slice(0, 16) : '';
+
+      setFormData({
+        airline: flight.airline || '',
+        airlineCode: flight.airlineCode || '',
+        flightNumber: flight.flightNumber || '',
+        departureAirport: flight.departureAirport || '',
+        departureCity: flight.departureCity || '',
+        departureCountry: flight.departureCountry || '',
+        arrivalAirport: flight.arrivalAirport || '',
+        arrivalCity: flight.arrivalCity || '',
+        arrivalCountry: flight.arrivalCountry || '',
+        departureTime: formatDateTime(flight.departureTime),
+        arrivalTime: formatDateTime(flight.arrivalTime),
+        duration: flight.duration || '',
+        economyPrice: flight.economyPrice || '',
+        businessPrice: flight.businessPrice || '',
+        firstClassPrice: flight.firstClassPrice || '',
+        economySeats: flight.economySeats || 150,
+        businessSeats: flight.businessSeats || 20,
+        firstClassSeats: flight.firstClassSeats || 10,
+        Images: flight.Images && flight.Images.length > 0 
+                ? flight.Images.map(img => ({ url: img.url, category: img.category })) 
+                : [{ url: '', category: 'Exterior' }]
+      });
+    } catch (error) {
+      toast.error('Failed to load flight details');
+      navigate('/vendor/flights');
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,43 +91,51 @@ const AddFlight = () => {
         availableFirstClassSeats: formData.firstClassSeats,
         departureAirportName: formData.departureAirport,
         arrivalAirportName: formData.arrivalAirport,
-        images: formData.images.filter(img => img.trim() !== '')
+        Images: formData.Images.filter(img => img.url.trim() !== '')
       };
-      await api.post('/flights', flightData);
-      toast.success('Flight scheduled successfully!');
+
+      if (isEdit) {
+        await api.put(`/flights/${id}`, flightData);
+        toast.success('Flight updated successfully!');
+      } else {
+        await api.post('/flights', flightData);
+        toast.success('Flight scheduled successfully!');
+      }
       navigate('/vendor/flights');
     } catch (error) {
-      const message = error.response?.data?.message || 'Failed to schedule flight';
+      const message = error.response?.data?.message || `Failed to ${isEdit ? 'update' : 'schedule'} flight`;
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleImageChange = (index, value) => {
-    const newImages = [...formData.images];
-    newImages[index] = value;
-    setFormData({ ...formData, images: newImages });
+  const handleImageChange = (index, field, value) => {
+    const newImages = [...formData.Images];
+    newImages[index][field] = value;
+    setFormData({ ...formData, Images: newImages });
   };
 
   const addImageField = () => {
-    setFormData({ ...formData, images: [...formData.images, ''] });
+    setFormData({ ...formData, Images: [...formData.Images, { url: '', category: 'General' }] });
   };
 
   const removeImageField = (index) => {
-    if (formData.images.length > 1) {
-      const newImages = formData.images.filter((_, i) => i !== index);
-      setFormData({ ...formData, images: newImages });
+    if (formData.Images.length > 1) {
+      const newImages = formData.Images.filter((_, i) => i !== index);
+      setFormData({ ...formData, Images: newImages });
     }
   };
+
+  if (initialLoading) return <LoadingSpinner />;
 
   return (
     <div className="max-w-5xl mx-auto space-y-10">
       <div className="flex items-center space-x-4">
         <button onClick={() => navigate(-1)} className="p-3 bg-white border border-gray-100 rounded-2xl text-gray-400 hover:text-slate-900 transition-all"><FiArrowLeft size={20} /></button>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Schedule New Flight</h1>
-          <p className="text-gray-500 font-medium">Add a new flight route and pricing classes.</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">{isEdit ? 'Edit Flight' : 'Schedule New Flight'}</h1>
+          <p className="text-gray-500 font-medium">{isEdit ? 'Update flight details and pricing.' : 'Add a new flight route and pricing classes.'}</p>
         </div>
       </div>
 
@@ -143,6 +201,7 @@ const AddFlight = () => {
                     <input type="text" placeholder="Airport Code" className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-sm" value={formData.departureAirport} onChange={e => setFormData({...formData, departureAirport: e.target.value})} />
                     <input type="text" placeholder="City" className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-sm" value={formData.departureCity} onChange={e => setFormData({...formData, departureCity: e.target.value})} />
                  </div>
+                 <input type="text" placeholder="Country" className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-sm" value={formData.departureCountry} onChange={e => setFormData({...formData, departureCountry: e.target.value})} />
               </div>
               <div className="space-y-6">
                  <p className="text-xs font-black text-emerald-500 uppercase tracking-[0.2em]">Arrival</p>
@@ -150,6 +209,7 @@ const AddFlight = () => {
                     <input type="text" placeholder="Airport Code" className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-sm" value={formData.arrivalAirport} onChange={e => setFormData({...formData, arrivalAirport: e.target.value})} />
                     <input type="text" placeholder="City" className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-sm" value={formData.arrivalCity} onChange={e => setFormData({...formData, arrivalCity: e.target.value})} />
                  </div>
+                 <input type="text" placeholder="Country" className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-sm" value={formData.arrivalCountry} onChange={e => setFormData({...formData, arrivalCountry: e.target.value})} />
               </div>
            </div>
         </div>
@@ -165,22 +225,34 @@ const AddFlight = () => {
               <FiPlus /> <span>Add More</span>
             </button>
           </div>
-          <div className="space-y-4">
-            {formData.images.map((img, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <div className="flex-1 space-y-2">
+          <div className="space-y-6">
+            {formData.Images.map((img, index) => (
+              <div key={index} className="flex flex-col sm:flex-row items-end gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="flex-1 w-full space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Image URL {index + 1}</label>
                   <input 
                     type="url" 
-                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-sm" 
-                    placeholder="https://images.unsplash.com/photo..."
-                    value={img} 
-                    onChange={e => handleImageChange(index, e.target.value)} 
-                    required 
+                    className="w-full p-3 bg-white border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-sm" 
+                    placeholder="https://example.com/image.jpg"
+                    value={img.url} 
+                    onChange={e => handleImageChange(index, 'url', e.target.value)} 
+                    required={index === 0}
                   />
                 </div>
-                {formData.images.length > 1 && (
-                  <button type="button" onClick={() => removeImageField(index)} className="mt-6 p-4 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all">
+                <div className="w-full sm:w-1/3 space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category</label>
+                  <select 
+                    className="w-full p-3 bg-white border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-sm text-gray-700"
+                    value={img.category}
+                    onChange={e => handleImageChange(index, 'category', e.target.value)}
+                  >
+                    {imageCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                {formData.Images.length > 1 && (
+                  <button type="button" onClick={() => removeImageField(index)} className="p-3 bg-white text-rose-500 hover:bg-rose-50 rounded-xl border border-gray-100 transition-all">
                     <FiX />
                   </button>
                 )}
@@ -215,7 +287,7 @@ const AddFlight = () => {
         </div>
 
         <button type="submit" disabled={loading} className="w-full py-6 bg-primary-600 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-primary-600/30 hover:scale-[1.02] active:scale-95 transition-all">
-          {loading ? 'Scheduling...' : 'Schedule Flight'}
+          {loading ? 'Saving...' : (isEdit ? 'Save Changes' : 'Schedule Flight')}
         </button>
       </form>
     </div>

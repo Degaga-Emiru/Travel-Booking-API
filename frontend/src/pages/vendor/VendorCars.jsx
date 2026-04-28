@@ -40,7 +40,7 @@ const VendorCars = () => {
             className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden group"
           >
             <div className="relative h-48 overflow-hidden bg-gray-50">
-               <img src={car.images?.[0] || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf'} className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700" alt={car.model} />
+               <img src={car.Images?.[0]?.url || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf'} className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700" alt={car.model} />
                <div className="absolute top-4 right-4 bg-slate-900 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
                   {car.type}
                </div>
@@ -76,9 +76,9 @@ const VendorCars = () => {
                </div>
 
                <div className="flex items-center space-x-2 pt-2">
-                  <button className="flex-1 py-3 bg-gray-50 text-slate-900 rounded-xl font-bold text-xs hover:bg-gray-100 transition-all flex items-center justify-center">
+                  <Link to={`/vendor/cars/edit/${car.id}`} className="flex-1 py-3 bg-gray-50 text-slate-900 rounded-xl font-bold text-xs hover:bg-gray-100 transition-all flex items-center justify-center">
                      <FiEdit className="mr-2" /> Edit
-                  </button>
+                  </Link>
                   <button className="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 transition-all">
                      <FiTrash2 />
                   </button>

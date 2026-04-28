@@ -47,14 +47,41 @@ const HotelDetail = () => {
             </div>
           </motion.div>
 
-          {/* Image Gallery Placeholder */}
-          <div className="grid grid-cols-2 gap-4 h-[400px]">
-            <img src={hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945'} className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
-            <div className="grid grid-rows-2 gap-4">
-              <img src={hotel.images?.[1] || 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b'} className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
-              <img src={hotel.images?.[2] || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb'} className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
+          {/* Image Gallery */}
+          {hotel.Images && hotel.Images.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4 h-[400px]">
+              <div className="relative h-full group">
+                <img src={hotel.Images[0]?.url} className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
+                <span className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md text-white px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest shadow-lg">{hotel.Images[0]?.category || 'General'}</span>
+              </div>
+              <div className="grid grid-rows-2 gap-4">
+                {hotel.Images[1] ? (
+                  <div className="relative h-full group">
+                    <img src={hotel.Images[1].url} className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
+                    <span className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md text-white px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest shadow-lg">{hotel.Images[1].category || 'General'}</span>
+                  </div>
+                ) : (
+                  <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b" className="w-full h-full object-cover rounded-3xl" alt="Placeholder" />
+                )}
+                {hotel.Images[2] ? (
+                  <div className="relative h-full group">
+                    <img src={hotel.Images[2].url} className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
+                    <span className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md text-white px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest shadow-lg">{hotel.Images[2].category || 'General'}</span>
+                  </div>
+                ) : (
+                  <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb" className="w-full h-full object-cover rounded-3xl" alt="Placeholder" />
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 h-[400px]">
+              <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945" className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
+              <div className="grid grid-rows-2 gap-4">
+                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b" className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
+                <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb" className="w-full h-full object-cover rounded-3xl" alt={hotel.name} />
+              </div>
+            </div>
+          )}
 
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">About this hotel</h2>

@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiImage, FiMapPin, FiStar, FiCoffee, FiWifi, FiWind, FiTv, FiInfo, FiArrowLeft } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FiPlus, FiImage, FiMapPin, FiStar, FiCoffee, FiWifi, FiWind, FiTv, FiInfo, FiArrowLeft, FiX } from 'react-icons/fi';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { motion } from 'framer-motion';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const AddHotel = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEdit = !!id;
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(isEdit);
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -19,7 +23,7 @@ const AddHotel = () => {
     totalRooms: '',
     availableRooms: '',
     amenities: [],
-    images: ['']
+    Images: [{ url: '', category: 'Exterior' }]
   });
 
   const amenitiesList = [
@@ -27,8 +31,44 @@ const AddHotel = () => {
     { name: 'Breakfast', icon: <FiCoffee /> },
     { name: 'Air Conditioning', icon: <FiWind /> },
     { name: 'Smart TV', icon: <FiTv /> },
-    { name: 'Parking', icon: <FiInfo /> }
+    { name: 'Parking', icon: <FiInfo /> },
+    { name: 'Swimming Pool', icon: <FiInfo /> }
   ];
+
+  const imageCategories = ['Exterior', 'Room', 'Lobby', 'Pool', 'Restaurant', 'Bathroom', 'General'];
+
+  useEffect(() => {
+    if (isEdit) {
+      fetchHotel();
+    }
+  }, [id]);
+
+  const fetchHotel = async () => {
+    try {
+      const response = await api.get(`/hotels/${id}`);
+      const hotel = response.data.data;
+      setFormData({
+        name: hotel.name || '',
+        description: hotel.description || '',
+        starRating: hotel.starRating || 3,
+        address: hotel.address || '',
+        city: hotel.city || '',
+        country: hotel.country || '',
+        pricePerNight: hotel.pricePerNight || '',
+        totalRooms: hotel.totalRooms || '',
+        availableRooms: hotel.availableRooms || '',
+        amenities: hotel.amenities || [],
+        Images: hotel.Images && hotel.Images.length > 0 
+                ? hotel.Images.map(img => ({ url: img.url, category: img.category })) 
+                : [{ url: '', category: 'Exterior' }]
+      });
+    } catch (error) {
+      toast.error('Failed to load hotel details');
+      navigate('/vendor/hotels');
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleAmenityToggle = (amenity) => {
     setFormData(prev => ({
@@ -46,43 +86,51 @@ const AddHotel = () => {
       const hotelData = {
         ...formData,
         availableRooms: formData.totalRooms,
-        images: formData.images.filter(img => img.trim() !== '')
+        Images: formData.Images.filter(img => img.url.trim() !== '')
       };
-      await api.post('/hotels', hotelData);
-      toast.success('Hotel listing created successfully!');
+
+      if (isEdit) {
+        await api.put(`/hotels/${id}`, hotelData);
+        toast.success('Hotel updated successfully!');
+      } else {
+        await api.post('/hotels', hotelData);
+        toast.success('Hotel listing created successfully!');
+      }
       navigate('/vendor/hotels');
     } catch (error) {
-      const message = error.response?.data?.message || 'Failed to create hotel listing';
+      const message = error.response?.data?.message || `Failed to ${isEdit ? 'update' : 'create'} hotel listing`;
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleImageChange = (index, value) => {
-    const newImages = [...formData.images];
-    newImages[index] = value;
-    setFormData({ ...formData, images: newImages });
+  const handleImageChange = (index, field, value) => {
+    const newImages = [...formData.Images];
+    newImages[index][field] = value;
+    setFormData({ ...formData, Images: newImages });
   };
 
   const addImageField = () => {
-    setFormData({ ...formData, images: [...formData.images, ''] });
+    setFormData({ ...formData, Images: [...formData.Images, { url: '', category: 'General' }] });
   };
 
   const removeImageField = (index) => {
-    if (formData.images.length > 1) {
-      const newImages = formData.images.filter((_, i) => i !== index);
-      setFormData({ ...formData, images: newImages });
+    if (formData.Images.length > 1) {
+      const newImages = formData.Images.filter((_, i) => i !== index);
+      setFormData({ ...formData, Images: newImages });
     }
   };
+
+  if (initialLoading) return <LoadingSpinner />;
 
   return (
     <div className="max-w-5xl mx-auto space-y-10">
       <div className="flex items-center space-x-4">
         <button onClick={() => navigate(-1)} className="p-3 bg-white border border-gray-100 rounded-2xl text-gray-400 hover:text-slate-900 transition-all"><FiArrowLeft size={20} /></button>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Add New Hotel</h1>
-          <p className="text-gray-500 font-medium">Register your property on our platform.</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">{isEdit ? 'Edit Hotel' : 'Add New Hotel'}</h1>
+          <p className="text-gray-500 font-medium">{isEdit ? 'Update your property details.' : 'Register your property on our platform.'}</p>
         </div>
       </div>
 
@@ -129,6 +177,7 @@ const AddHotel = () => {
               </div>
             </div>
           </div>
+
           {/* Images */}
           <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100 space-y-8">
             <div className="flex items-center justify-between">
@@ -140,22 +189,34 @@ const AddHotel = () => {
                 <FiPlus /> <span>Add More</span>
               </button>
             </div>
-            <div className="space-y-4">
-              {formData.images.map((img, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <div className="flex-1 space-y-2">
+            <div className="space-y-6">
+              {formData.Images.map((img, index) => (
+                <div key={index} className="flex flex-col sm:flex-row items-end gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div className="flex-1 w-full space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Image URL {index + 1}</label>
                     <input 
                       type="url" 
-                      className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-sm" 
-                      placeholder="https://images.unsplash.com/photo..."
-                      value={img} 
-                      onChange={e => handleImageChange(index, e.target.value)} 
-                      required 
+                      className="w-full p-3 bg-white border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-sm" 
+                      placeholder="https://example.com/image.jpg"
+                      value={img.url} 
+                      onChange={e => handleImageChange(index, 'url', e.target.value)} 
+                      required={index === 0}
                     />
                   </div>
-                  {formData.images.length > 1 && (
-                    <button type="button" onClick={() => removeImageField(index)} className="mt-6 p-4 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all">
+                  <div className="w-full sm:w-1/3 space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category</label>
+                    <select 
+                      className="w-full p-3 bg-white border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 font-bold text-sm text-gray-700"
+                      value={img.category}
+                      onChange={e => handleImageChange(index, 'category', e.target.value)}
+                    >
+                      {imageCategories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {formData.Images.length > 1 && (
+                    <button type="button" onClick={() => removeImageField(index)} className="p-3 bg-white text-rose-500 hover:bg-rose-50 rounded-xl border border-gray-100 transition-all">
                       <FiX />
                     </button>
                   )}
@@ -209,7 +270,7 @@ const AddHotel = () => {
           </div>
 
           <button type="submit" disabled={loading} className="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black text-lg shadow-2xl shadow-slate-900/40 hover:scale-[1.02] active:scale-95 transition-all">
-            {loading ? 'Publishing...' : 'Publish Listing'}
+            {loading ? 'Saving...' : (isEdit ? 'Save Changes' : 'Publish Listing')}
           </button>
         </div>
       </form>

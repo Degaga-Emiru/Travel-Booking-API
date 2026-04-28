@@ -73,7 +73,7 @@ const VendorFlights = () => {
             </div>
 
             <div className="flex items-center space-x-2">
-               <button className="p-4 bg-gray-50 text-slate-900 rounded-2xl font-bold hover:bg-gray-100 transition-all"><FiEdit /></button>
+               <Link to={`/vendor/flights/edit/${flight.id}`} className="p-4 bg-gray-50 text-slate-900 rounded-2xl font-bold hover:bg-gray-100 transition-all"><FiEdit /></Link>
                <button className="p-4 bg-rose-50 text-rose-500 rounded-2xl hover:bg-rose-100 transition-all"><FiTrash2 /></button>
             </div>
           </motion.div>

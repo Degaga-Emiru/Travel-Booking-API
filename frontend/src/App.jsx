@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 // Components
@@ -21,6 +21,7 @@ import Flights from './pages/Flights';
 import Packages from './pages/Packages';
 import Bookings from './pages/Bookings';
 import Profile from './pages/Profile';
+import UserSettings from './pages/Settings';
 import CityDetail from './pages/CityDetail';
 import Cities from './pages/Cities';
 import HotelDetail from './pages/HotelDetail';
@@ -93,13 +94,23 @@ const AdminRoute = ({ children }) => {
   return (user && user.role === 'admin') ? children : <Navigate to="/" />;
 };
 
+const MainLayout = () => (
+  <div className="min-h-screen bg-gray-50 flex flex-col">
+    <Header />
+    <main className="flex-1">
+      <Outlet />
+    </main>
+    <Footer />
+    <ChatWidget />
+  </div>
+);
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <Routes>
-          {/* Public Routes */}
+    <Routes>
+      {/* Main App Routes with Global Header/Footer */}
+      <Route element={<MainLayout />}>
+        {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/cities" element={<Cities />} />
           <Route path="/cities/:cityName" element={<CityDetail />} />
@@ -194,57 +205,58 @@ function App() {
             } 
           />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
             <Route path="/hotels/:id" element={<ProtectedRoute><HotelDetail /></ProtectedRoute>} />
             <Route path="/flights/:id" element={<ProtectedRoute><FlightDetail /></ProtectedRoute>} />
             <Route path="/booking/:type/:id" element={<ProtectedRoute><BookingWizard /></ProtectedRoute>} />
             <Route path="/payment/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
             <Route path="/payment/failed" element={<ProtectedRoute><PaymentFailed /></ProtectedRoute>} />
           
-          {/* Admin Routes */}
-          <Route 
-            path="/admin" 
-            element={
-              <AdminRoute>
-                <AdminLayout />
-              </AdminRoute>
-            }
-          >
-            <Route index element={<Navigate to="dashboard" />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="vendors" element={<VendorManagement />} />
-            <Route path="services" element={<div>Service Management coming soon...</div>} />
-            <Route path="bookings" element={<BookingManagement />} />
-            <Route path="payments" element={<PaymentManagement />} />
-            <Route path="refunds" element={<RefundManagement />} />
-            <Route path="support" element={<Support />} />
-            <Route path="audit-logs" element={<AuditLogs />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
+        <Route path="*" element={<Navigate to="/" />} />
+      </Route>
 
-            {/* Vendor Routes */}
-            <Route path="/vendor" element={<ProtectedRoute><VendorLayout /></ProtectedRoute>}>
-              <Route index element={<VendorDashboard />} />
-              <Route path="dashboard" element={<VendorDashboard />} />
-              <Route path="verification" element={<BusinessVerification />} />
-              <Route path="hotels" element={<VendorHotels />} />
-              <Route path="hotels/add" element={<AddHotel />} />
-              <Route path="flights" element={<VendorFlights />} />
-              <Route path="flights/add" element={<AddFlight />} />
-              <Route path="cars" element={<VendorCars />} />
-              <Route path="cars/add" element={<AddCar />} />
-              <Route path="bookings" element={<VendorBookings />} />
-              <Route path="earnings" element={<VendorEarnings />} />
-              <Route path="chat" element={<VendorChat />} />
-            </Route>
+      {/* Admin Routes (Standalone Layout) */}
+      <Route 
+        path="/admin" 
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="vendors" element={<VendorManagement />} />
+        <Route path="services" element={<div>Service Management coming soon...</div>} />
+        <Route path="bookings" element={<BookingManagement />} />
+        <Route path="payments" element={<PaymentManagement />} />
+        <Route path="refunds" element={<RefundManagement />} />
+        <Route path="support" element={<Support />} />
+        <Route path="audit-logs" element={<AuditLogs />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
 
-          {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </main>
-      <Footer />
-      <ChatWidget />
-    </div>
+      {/* Vendor Routes (Standalone Layout) */}
+      <Route path="/vendor" element={<ProtectedRoute><VendorLayout /></ProtectedRoute>}>
+        <Route index element={<VendorDashboard />} />
+        <Route path="dashboard" element={<VendorDashboard />} />
+        <Route path="verification" element={<BusinessVerification />} />
+        <Route path="hotels" element={<VendorHotels />} />
+        <Route path="hotels/add" element={<AddHotel />} />
+        <Route path="hotels/edit/:id" element={<AddHotel />} />
+        <Route path="flights" element={<VendorFlights />} />
+        <Route path="flights/add" element={<AddFlight />} />
+        <Route path="flights/edit/:id" element={<AddFlight />} />
+        <Route path="cars" element={<VendorCars />} />
+        <Route path="cars/add" element={<AddCar />} />
+        <Route path="cars/edit/:id" element={<AddCar />} />
+        <Route path="bookings" element={<VendorBookings />} />
+        <Route path="earnings" element={<VendorEarnings />} />
+        <Route path="chat" element={<VendorChat />} />
+        <Route path="settings" element={<UserSettings />} />
+      </Route>
+    </Routes>
   );
 }
 

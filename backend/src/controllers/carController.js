@@ -1,4 +1,4 @@
-const { CarRental, VendorProfile } = require('../models');
+const { CarRental, VendorProfile, Image } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getCars = async (req, res, next) => {
@@ -20,9 +20,11 @@ exports.getCars = async (req, res, next) => {
 
     const cars = await CarRental.findAndCountAll({
       where,
+      include: [{ model: Image, as: 'Images' }],
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['pricePerDay', 'ASC']]
+      order: [['pricePerDay', 'ASC']],
+      distinct: true
     });
 
     res.status(200).json({
@@ -41,7 +43,9 @@ exports.getCars = async (req, res, next) => {
 
 exports.getCar = async (req, res, next) => {
   try {
-    const car = await CarRental.findByPk(req.params.id);
+    const car = await CarRental.findByPk(req.params.id, {
+      include: [{ model: Image, as: 'Images' }]
+    });
 
     if (!car) {
       return res.status(404).json({
@@ -72,7 +76,7 @@ exports.createCar = async (req, res, next) => {
         });
       }
 
-      if (vendor.status !== 'approved') {
+      if (vendor.status !== 'verified') {
         return res.status(403).json({
           success: false,
           message: 'Your vendor account is not yet approved. Please complete business verification.'
@@ -83,6 +87,16 @@ exports.createCar = async (req, res, next) => {
     }
 
     const car = await CarRental.create(req.body);
+
+    if (req.body.Images && req.body.Images.length > 0) {
+      const imageRecords = req.body.Images.map(img => ({
+        url: img.url,
+        category: img.category || 'General',
+        relatedId: car.id,
+        relatedType: 'CarRental'
+      }));
+      await Image.bulkCreate(imageRecords);
+    }
 
     res.status(201).json({
       success: true,
@@ -113,6 +127,19 @@ exports.updateCar = async (req, res, next) => {
     }
 
     await car.update(req.body);
+
+    if (req.body.Images) {
+      await Image.destroy({ where: { relatedId: car.id, relatedType: 'CarRental' } });
+      if (req.body.Images.length > 0) {
+        const imageRecords = req.body.Images.map(img => ({
+          url: img.url,
+          category: img.category || 'General',
+          relatedId: car.id,
+          relatedType: 'CarRental'
+        }));
+        await Image.bulkCreate(imageRecords);
+      }
+    }
 
     res.status(200).json({
       success: true,

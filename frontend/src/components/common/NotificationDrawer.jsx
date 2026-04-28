@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FiX, FiBell, FiCheckCircle, FiInfo, FiAlertCircle, FiTrash2 } from 'react-icons/fi';
 import api from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-const NotificationDrawer = ({ isOpen, onClose }) => {
+const NotificationDrawer = ({ isOpen, onClose, onNotificationsRead, onMarkAllRead }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isOpen) {
@@ -26,8 +28,9 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
 
   const markAllRead = async () => {
     try {
-      await api.patch('/notifications/mark-all-read');
+      await api.put('/notifications/mark-all-read');
       setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+      if (onMarkAllRead) onMarkAllRead();
     } catch (error) {
       console.error('Failed to mark all as read');
     }
@@ -80,7 +83,26 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
                       </div>
                       <div className="flex-1 space-y-1">
                         <div className="flex justify-between">
-                          <p className={`text-sm ${!n.isRead ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>{n.title}</p>
+                          <p 
+                            className={`text-sm ${!n.isRead ? 'font-bold text-gray-900 cursor-pointer hover:underline' : 'font-medium text-gray-600 cursor-pointer hover:underline'}`}
+                            onClick={async () => {
+                              if (!n.isRead) {
+                                try {
+                                  await api.put(`/notifications/${n.id}/read`);
+                                  setNotifications(notifications.map(item => item.id === n.id ? { ...item, isRead: true } : item));
+                                  if (onNotificationsRead) onNotificationsRead(); // Update Header count
+                                } catch (e) {
+                                  console.error(e);
+                                }
+                              }
+                              onClose();
+                              if (n.type === 'booking') navigate(`/bookings`);
+                              else if (n.type === 'message') navigate(`/vendor/chat`);
+                              else if (n.type === 'hotel') navigate(`/hotels/${n.relatedId}`);
+                            }}
+                          >
+                            {n.title}
+                          </p>
                           <button onClick={() => deleteNotification(n.id)} className="text-gray-400 hover:text-rose-500"><FiTrash2 size={14} /></button>
                         </div>
                         <p className="text-xs text-gray-500 leading-relaxed">{n.message}</p>

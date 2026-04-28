@@ -1,5 +1,6 @@
 const { Message, User } = require('../models');
 const { Op } = require('sequelize');
+const { createNotification } = require('./notificationController');
 
 // @desc    Get messages between two users
 // @route   GET /api/chat/:receiverId
@@ -61,9 +62,74 @@ exports.getConversations = async (req, res, next) => {
       attributes: ['id', 'firstName', 'lastName', 'profileImage', 'role']
     });
 
+    // Always include admins in the contact list so users can message support
+    const admins = await User.findAll({
+      where: { role: 'admin' },
+      attributes: ['id', 'firstName', 'lastName', 'profileImage', 'role']
+    });
+
+    const existingIds = new Set(contacts.map(c => c.id));
+    admins.forEach(admin => {
+      // Don't add if the user IS the admin, or if they're already in the list
+      if (admin.id !== userId && !existingIds.has(admin.id)) {
+        // Change admin display name slightly to indicate they are support
+        admin.lastName = '(Support)';
+        contacts.push(admin);
+      }
+    });
+
     res.status(200).json({
       success: true,
       data: contacts
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Send a message
+// @route   POST /api/chat
+// @access  Private
+exports.sendMessage = async (req, res, next) => {
+  try {
+    const { receiverId, content, messageType } = req.body;
+    const senderId = req.user.id;
+
+    if (!receiverId || !content) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide receiverId and content'
+      });
+    }
+
+    const receiver = await User.findByPk(receiverId);
+    if (!receiver) {
+      return res.status(404).json({
+        success: false,
+        message: 'Receiver not found'
+      });
+    }
+
+    const message = await Message.create({
+      senderId,
+      receiverId,
+      content,
+      messageType: messageType || 'text',
+      isRead: false
+    });
+
+    // Automatically trigger a notification to the receiver
+    await createNotification(
+      receiverId,
+      'system',
+      'New Message',
+      `You have received a new message from ${req.user.firstName}.`,
+      message.id
+    );
+
+    res.status(201).json({
+      success: true,
+      data: message
     });
   } catch (error) {
     next(error);

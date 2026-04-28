@@ -287,3 +287,63 @@ exports.getUserStats = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getUserSettings = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ['password'] }
+    });
+    
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateUserSettings = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    
+    const { firstName, lastName, phone, address, profileImage, currentPassword, newPassword, preferences } = req.body;
+    
+    // Check if user is changing password
+    if (currentPassword && newPassword) {
+      const isMatch = await user.correctPassword(currentPassword);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Incorrect current password'
+        });
+      }
+      user.password = newPassword; // Will be hashed by Sequelize hook
+    }
+
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.phone = phone || user.phone;
+    user.address = address || user.address;
+    if (profileImage !== undefined) user.profileImage = profileImage;
+    if (preferences) user.preferences = { ...user.preferences, ...preferences };
+    
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Settings updated successfully',
+      data: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        profileImage: user.profileImage,
+        preferences: user.preferences
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

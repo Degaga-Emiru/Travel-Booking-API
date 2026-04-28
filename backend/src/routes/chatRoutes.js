@@ -7,5 +7,6 @@ router.use(protect);
 
 router.get('/conversations', chatController.getConversations);
 router.get('/:receiverId', chatController.getMessages);
+router.post('/', chatController.sendMessage);
 
 module.exports = router;

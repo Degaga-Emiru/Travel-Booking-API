@@ -24,6 +24,7 @@ const Message = require('./Message');
 const AuditLog = require('./AuditLog');
 const CarRental = require('./CarRental');
 const PayoutRequest = require('./PayoutRequest');
+const Image = require('./Image');
 
 // Define associations
 User.hasMany(Booking, { foreignKey: 'userId' });
@@ -93,6 +94,16 @@ Flight.belongsTo(VendorProfile, { foreignKey: 'vendorId' });
 VendorProfile.hasMany(CarRental, { foreignKey: 'vendorId' });
 CarRental.belongsTo(VendorProfile, { foreignKey: 'vendorId' });
 
+// Image polymorphic associations
+Hotel.hasMany(Image, { foreignKey: 'relatedId', constraints: false, scope: { relatedType: 'Hotel' } });
+Image.belongsTo(Hotel, { foreignKey: 'relatedId', constraints: false });
+
+Flight.hasMany(Image, { foreignKey: 'relatedId', constraints: false, scope: { relatedType: 'Flight' } });
+Image.belongsTo(Flight, { foreignKey: 'relatedId', constraints: false });
+
+CarRental.hasMany(Image, { foreignKey: 'relatedId', constraints: false, scope: { relatedType: 'CarRental' } });
+Image.belongsTo(CarRental, { foreignKey: 'relatedId', constraints: false });
+
 VendorProfile.hasMany(PayoutRequest, { foreignKey: 'vendorId' });
 PayoutRequest.belongsTo(VendorProfile, { foreignKey: 'vendorId' });
 
@@ -137,5 +148,6 @@ module.exports = {
   Message,
   AuditLog,
   CarRental,
-  PayoutRequest
+  PayoutRequest,
+  Image
 };

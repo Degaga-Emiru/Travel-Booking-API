@@ -2,6 +2,7 @@ const { Booking, User, Flight, Hotel, Package, Payment } = require('../models');
 const { Op } = require('sequelize');
 const { generateBookingReference, calculateTotalAmount } = require('../utils/helpers');
 const { sendBookingConfirmation, sendBookingCancellation } = require('../utils/emailService');
+const { createNotification } = require('./notificationController');
 
 exports.createBooking = async (req, res, next) => {
   try {
@@ -137,6 +138,15 @@ exports.createBooking = async (req, res, next) => {
 
     // Send booking confirmation email
     await sendBookingConfirmation(req.user, populatedBooking);
+
+    // Create Notification
+    await createNotification(
+      req.user.id,
+      'booking',
+      'Booking Confirmed',
+      `Your booking (${populatedBooking.bookingReference}) has been confirmed.`,
+      populatedBooking.id
+    );
 
     res.status(201).json({
       success: true,
@@ -358,6 +368,15 @@ exports.cancelBooking = async (req, res, next) => {
 
     // Send cancellation email
     await sendBookingCancellation(booking.User, booking);
+
+    // Create Notification
+    await createNotification(
+      req.user.id,
+      'booking',
+      'Booking Cancelled',
+      `Your booking (${booking.bookingReference}) has been cancelled.`,
+      booking.id
+    );
 
     res.status(200).json({
       success: true,

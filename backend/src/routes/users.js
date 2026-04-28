@@ -7,7 +7,9 @@ const {
   deleteUser,
   updateUserRole,
   deactivateUser,
-  getUserStats
+  getUserStats,
+  getUserSettings,
+  updateUserSettings
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -23,6 +25,10 @@ router.get('/profile', (req, res) => {
     data: req.user
   });
 });
+
+// Settings routes
+router.get('/settings', getUserSettings);
+router.put('/settings', updateUserSettings);
 
 // Admin only routes
 router.get('/', authorize('admin'), getUsers);

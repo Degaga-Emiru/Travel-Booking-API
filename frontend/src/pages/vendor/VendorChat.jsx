@@ -2,46 +2,79 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiSend, FiUser, FiMessageSquare, FiSearch, FiMoreVertical, FiPaperclip } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { io } from 'socket.io-client';
+import api from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const VendorChat = () => {
   const { user } = useAuth();
-  const [conversations, setConversations] = useState([
-    { id: '1', name: 'Admin Support', lastMsg: 'Your verification is complete.', unread: 0, avatar: 'A' },
-    { id: '2', name: 'John Doe (Customer)', lastMsg: 'Is the suite available?', unread: 2, avatar: 'J' },
-  ]);
+  const [conversations, setConversations] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const socketRef = useRef();
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const response = await api.get('/chat/conversations');
+        setConversations(response.data.data.map(c => ({
+          ...c,
+          avatar: c.firstName.charAt(0) + c.lastName.charAt(0),
+          name: `${c.firstName} ${c.lastName}`
+        })));
+      } catch (error) {
+        console.error('Failed to load conversations', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchConversations();
+
     socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
     socketRef.current.emit('join', user.id);
     
-    socketRef.current.on('receive_message', (msg) => {
+    socketRef.current.on('receiveMessage', (msg) => {
+      setMessages(prev => [...prev, msg]);
+    });
+
+    socketRef.current.on('messageSent', (msg) => {
       setMessages(prev => [...prev, msg]);
     });
 
     return () => socketRef.current.disconnect();
-  }, [user]);
+  }, [user.id]);
+
+  useEffect(() => {
+    if (selectedChat) {
+      const fetchMessages = async () => {
+        try {
+          const response = await api.get(`/chat/${selectedChat.id}`);
+          setMessages(response.data.data);
+        } catch (error) {
+          console.error('Failed to load messages', error);
+        }
+      };
+      fetchMessages();
+    }
+  }, [selectedChat]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!newMessage.trim() || !selectedChat) return;
     const msgData = {
       senderId: user.id,
       receiverId: selectedChat.id,
       content: newMessage,
-      timestamp: new Date()
     };
-    socketRef.current.emit('send_message', msgData);
-    setMessages(prev => [...prev, { ...msgData, isMine: true }]);
+    
+    // Send via socket for real-time
+    socketRef.current.emit('sendMessage', msgData);
     setNewMessage('');
   };
 

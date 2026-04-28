@@ -1,16 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FiMenu, FiX, FiUser, FiLogOut, FiSettings, FiBell } from 'react-icons/fi';
+import api from '../../services/api';
 import NotificationDrawer from './NotificationDrawer';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const fetchUnreadCount = async () => {
+    try {
+      if (!isAuthenticated) return;
+      const res = await api.get('/notifications/unread-count');
+      setUnreadCount(res.data.data.unreadCount);
+    } catch (error) {
+      console.error('Failed to fetch unread count');
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
     logout();
@@ -125,21 +145,31 @@ const Header = () => {
                         Vendor Hub
                       </Link>
                     )}
-                    <Link
-                      to="/dashboard"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsProfileMenuOpen(false)}
-                    >
-                      <FiUser className="mr-3" />
-                      Dashboard
-                    </Link>
+                    {user?.role !== 'admin' && user?.role !== 'vendor' && (
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        <FiUser className="mr-3" />
+                        Dashboard
+                      </Link>
+                    )}
                     <Link
                       to="/profile"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
-                      <FiSettings className="mr-3" />
+                      <FiUser className="mr-3" />
                       Profile
+                    </Link>
+                    <Link
+                      to="/settings"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      <FiSettings className="mr-3" />
+                      Settings
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -175,9 +205,11 @@ const Header = () => {
                   className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-full transition-all relative"
                 >
                   <FiBell size={22} />
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-                    3
-                  </span>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
                 </button>
               </div>
             )}
@@ -232,7 +264,12 @@ const Header = () => {
           </div>
         )}
       </div>
-      <NotificationDrawer isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
+      <NotificationDrawer 
+        isOpen={isNotifOpen} 
+        onClose={() => setIsNotifOpen(false)} 
+        onNotificationsRead={() => setUnreadCount(prev => Math.max(0, prev - 1))}
+        onMarkAllRead={() => setUnreadCount(0)}
+      />
     </header>
   );
 };

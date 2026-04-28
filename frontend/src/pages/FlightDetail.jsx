@@ -40,26 +40,35 @@ const FlightDetail = () => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
       >
-        <div className="bg-slate-900 p-8 text-white">
-          <div className="flex justify-between items-center mb-8">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] opacity-60">Flight Confirmation</span>
-            <span className="px-3 py-1 bg-primary-500 rounded-full text-[10px] font-black uppercase">{flight.airline}</span>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="text-center">
-              <p className="text-4xl font-black mb-2">{flight.origin}</p>
-              <p className="text-sm opacity-60">{flight.departureTime}</p>
+        <div 
+          className="bg-slate-900 p-8 text-white relative overflow-hidden"
+        >
+          {flight.Images && flight.Images.length > 0 && (
+            <div className="absolute inset-0 z-0">
+              <img src={flight.Images[0]?.url} className="w-full h-full object-cover opacity-20" alt={flight.airline} />
             </div>
-            <div className="flex-1 px-10 flex flex-col items-center">
-              <p className="text-xs opacity-40 font-bold mb-2">Non-stop • 2h 45m</p>
-              <div className="w-full h-px bg-white/20 relative">
-                <FiSend className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-400 rotate-90 text-2xl" />
+          )}
+          <div className="relative z-10">
+            <div className="flex justify-between items-center mb-8">
+              <span className="text-xs font-bold uppercase tracking-[0.2em] opacity-60">Flight Confirmation</span>
+              <span className="px-3 py-1 bg-primary-500 rounded-full text-[10px] font-black uppercase shadow-lg shadow-primary-900/50">{flight.airline}</span>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <p className="text-4xl font-black mb-2">{flight.departureAirport}</p>
+                <p className="text-sm opacity-60">{flight.departureTime}</p>
               </div>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-black mb-2">{flight.destination}</p>
-              <p className="text-sm opacity-60">{flight.arrivalTime}</p>
+              <div className="flex-1 px-10 flex flex-col items-center">
+                <p className="text-xs opacity-40 font-bold mb-2">Non-stop • {Math.floor(flight.duration / 60)}h {flight.duration % 60}m</p>
+                <div className="w-full h-px bg-white/20 relative">
+                  <FiSend className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-400 rotate-90 text-2xl" />
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-4xl font-black mb-2">{flight.arrivalAirport}</p>
+                <p className="text-sm opacity-60">{flight.arrivalTime}</p>
+              </div>
             </div>
           </div>
         </div>

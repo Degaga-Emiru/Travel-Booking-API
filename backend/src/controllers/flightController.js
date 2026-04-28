@@ -1,4 +1,4 @@
-const { Flight, Booking, sequelize, VendorProfile } = require('../models');
+const { Flight, Booking, sequelize, VendorProfile, Image } = require('../models');
 const { Op } = require('sequelize');
 const kiwiService = require('../utils/kiwiService');
 
@@ -9,9 +9,11 @@ exports.getFlights = async (req, res, next) => {
 
     const flights = await Flight.findAndCountAll({
       where: { isActive: true },
+      include: [{ model: Image, as: 'Images' }],
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['departureTime', 'ASC']]
+      order: [['departureTime', 'ASC']],
+      distinct: true
     });
 
     res.status(200).json({
@@ -90,7 +92,9 @@ exports.searchFlights = async (req, res, next) => {
 
 exports.getFlight = async (req, res, next) => {
   try {
-    const flight = await Flight.findByPk(req.params.id);
+    const flight = await Flight.findByPk(req.params.id, {
+      include: [{ model: Image, as: 'Images' }]
+    });
 
     if (!flight) {
       return res.status(404).json({
@@ -121,7 +125,7 @@ exports.createFlight = async (req, res, next) => {
         });
       }
 
-      if (vendor.status !== 'approved') {
+      if (vendor.status !== 'verified') {
         return res.status(403).json({
           success: false,
           message: 'Your vendor account is not yet approved. Please complete business verification.'
@@ -132,6 +136,16 @@ exports.createFlight = async (req, res, next) => {
     }
 
     const flight = await Flight.create(req.body);
+
+    if (req.body.Images && req.body.Images.length > 0) {
+      const imageRecords = req.body.Images.map(img => ({
+        url: img.url,
+        category: img.category || 'General',
+        relatedId: flight.id,
+        relatedType: 'Flight'
+      }));
+      await Image.bulkCreate(imageRecords);
+    }
 
     res.status(201).json({
       success: true,
@@ -154,6 +168,19 @@ exports.updateFlight = async (req, res, next) => {
     }
 
     await flight.update(req.body);
+
+    if (req.body.Images) {
+      await Image.destroy({ where: { relatedId: flight.id, relatedType: 'Flight' } });
+      if (req.body.Images.length > 0) {
+        const imageRecords = req.body.Images.map(img => ({
+          url: img.url,
+          category: img.category || 'General',
+          relatedId: flight.id,
+          relatedType: 'Flight'
+        }));
+        await Image.bulkCreate(imageRecords);
+      }
+    }
 
     res.status(200).json({
       success: true,
