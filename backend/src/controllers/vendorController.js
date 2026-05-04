@@ -4,9 +4,9 @@ const { Op } = require('sequelize');
 exports.getDashboardStats = async (req, res, next) => {
   try {
     const vendor = await VendorProfile.findOne({ where: { userId: req.user.id } });
-    if (!vendor) return res.status(200).json({ success: true, data: { stats: { totalBookings: 0, totalRevenue: 0, payoutBalance: 0, rating: 0 } } });
+    if (!vendor) return res.status(200).json({ success: true, data: { stats: { totalBookings: 0, totalRevenue: 0, payoutBalance: 0, rating: 0 }, revenueChart: [] } });
 
-    // Total Bookings for this vendor's services
+    // Service IDs
     const hotelIds = (await Hotel.findAll({ where: { vendorId: vendor.id }, attributes: ['id'] })).map(h => h.id);
     const flightIds = (await Flight.findAll({ where: { vendorId: vendor.id }, attributes: ['id'] })).map(f => f.id);
     const carIds = (await CarRental.findAll({ where: { vendorId: vendor.id }, attributes: ['id'] })).map(c => c.id);
@@ -21,6 +21,42 @@ exports.getDashboardStats = async (req, res, next) => {
       }
     });
 
+    // Last 7 days revenue chart
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const payments = await Payment.findAll({
+      where: {
+        status: 'completed',
+        createdAt: { [Op.gte]: sevenDaysAgo }
+      },
+      include: [{
+        model: Booking,
+        where: {
+          [Op.or]: [
+            { hotelId: { [Op.in]: hotelIds } },
+            { flightId: { [Op.in]: flightIds } },
+            { carRentalId: { [Op.in]: carIds } }
+          ]
+        }
+      }]
+    });
+
+    const revenueChart = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const label = d.toLocaleDateString('en-US', { weekday: 'short' });
+      const dayStart = new Date(d.setHours(0, 0, 0, 0));
+      const dayEnd = new Date(d.setHours(23, 59, 59, 999));
+
+      const dayTotal = payments
+        .filter(p => new Date(p.createdAt) >= dayStart && new Date(p.createdAt) <= dayEnd)
+        .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+
+      revenueChart.push({ label, total: dayTotal });
+    }
+
     res.status(200).json({
       success: true,
       data: {
@@ -29,7 +65,8 @@ exports.getDashboardStats = async (req, res, next) => {
           totalRevenue: vendor.totalRevenue,
           payoutBalance: vendor.payoutBalance,
           rating: vendor.rating
-        }
+        },
+        revenueChart
       }
     });
   } catch (error) {

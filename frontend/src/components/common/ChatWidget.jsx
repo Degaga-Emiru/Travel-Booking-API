@@ -2,15 +2,30 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiMessageCircle, FiX, FiSend, FiPaperclip, FiMoreHorizontal } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { io } from 'socket.io-client';
+import api from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [supportAdmin, setSupportAdmin] = useState(null);
   const { user } = useAuth();
   const socketRef = useRef();
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    const fetchSupportAdmin = async () => {
+      try {
+        const res = await api.get('/chat/conversations');
+        const admins = res.data.data.filter(u => u.role === 'admin');
+        if (admins.length > 0) setSupportAdmin(admins[0]);
+      } catch (err) {
+        console.error('Support admin fetch error', err);
+      }
+    };
+    if (user) fetchSupportAdmin();
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -18,8 +33,11 @@ const ChatWidget = () => {
       
       socketRef.current.emit('join', user.id);
 
-      socketRef.current.on('receive_message', (message) => {
-        setMessages((prev) => [...prev, message]);
+      socketRef.current.on('receiveMessage', (message) => {
+        setMessages((prev) => {
+          if (prev.find(m => m.id === message.id)) return prev;
+          return [...prev, message];
+        });
       });
 
       return () => {
@@ -41,13 +59,12 @@ const ChatWidget = () => {
 
     const messageData = {
       senderId: user.id,
-      receiverId: 'admin', // Default to admin support
+      receiverId: supportAdmin?.id || 'admin',
       content: newMessage,
       timestamp: new Date()
     };
 
-    socketRef.current.emit('send_message', messageData);
-    setMessages((prev) => [...prev, { ...messageData, isMine: true }]);
+    socketRef.current.emit('sendMessage', messageData);
     setNewMessage('');
   };
 

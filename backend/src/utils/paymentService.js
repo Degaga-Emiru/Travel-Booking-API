@@ -69,6 +69,37 @@ const confirmPayment = async (paymentIntentId, bookingId, userId) => {
       status: 'confirmed'
     });
 
+    // --- VENDOR BALANCE UPDATE ---
+    const { VendorProfile, Flight, Hotel, CarRental } = require('../models');
+    let vendorId = null;
+
+    if (booking.hotelId) {
+      const hotel = await Hotel.findByPk(booking.hotelId);
+      vendorId = hotel?.vendorId;
+    } else if (booking.flightId) {
+      const flight = await Flight.findByPk(booking.flightId);
+      vendorId = flight?.vendorId;
+    } else if (booking.carRentalId) {
+      const car = await CarRental.findByPk(booking.carRentalId);
+      vendorId = car?.vendorId;
+    }
+
+    if (vendorId) {
+      const vendor = await VendorProfile.findByPk(vendorId);
+      if (vendor) {
+        const amount = paymentIntent.amount / 100;
+        const commission = amount * 0.10; // 10% platform fee
+        const vendorShare = amount - commission;
+
+        await vendor.update({
+          totalRevenue: parseFloat(vendor.totalRevenue || 0) + vendorShare,
+          payoutBalance: parseFloat(vendor.payoutBalance || 0) + vendorShare
+        });
+        console.log(`Updated vendor ${vendorId} balance: +${vendorShare}`);
+      }
+    }
+    // ----------------------------
+
     // Get user for email
     const user = await User.findByPk(userId);
 

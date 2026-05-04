@@ -6,7 +6,7 @@ let io;
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:3000',
+      origin: process.env.CLIENT_URL || 'http://localhost:5173',
       methods: ['GET', 'POST']
     }
   });
@@ -37,7 +37,7 @@ const initSocket = (server) => {
         // Send to receiver
         io.to(receiverId).emit('receiveMessage', fullMessage);
         // Send back to sender (for confirmation/other devices)
-        io.to(senderId).emit('messageSent', fullMessage);
+        io.to(senderId).emit('receiveMessage', fullMessage);
       } catch (error) {
         console.error('Socket Message Error:', error);
       }

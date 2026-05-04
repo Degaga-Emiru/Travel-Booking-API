@@ -41,6 +41,7 @@ import RefundManagement from './pages/admin/RefundManagement';
 import Support from './pages/admin/Support';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
+import ServiceListings from './pages/admin/ServiceListings';
 import ChatWidget from './components/common/ChatWidget';
 import VendorLayout from './components/vendor/VendorLayout';
 import VendorDashboard from './pages/vendor/VendorDashboard';
@@ -228,7 +229,7 @@ function App() {
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="users" element={<UserManagement />} />
         <Route path="vendors" element={<VendorManagement />} />
-        <Route path="services" element={<div>Service Management coming soon...</div>} />
+        <Route path="services" element={<ServiceListings />} />
         <Route path="bookings" element={<BookingManagement />} />
         <Route path="payments" element={<PaymentManagement />} />
         <Route path="refunds" element={<RefundManagement />} />

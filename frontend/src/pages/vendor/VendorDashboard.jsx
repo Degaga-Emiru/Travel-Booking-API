@@ -1,9 +1,26 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { FiTrendingUp, FiShoppingBag, FiStar, FiDollarSign, FiClock, FiCheckCircle } from 'react-icons/fi';
-import api from '../../services/api';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { motion } from 'framer-motion';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 const VendorDashboard = () => {
   const { data: statsData, isLoading } = useQuery({
@@ -17,11 +34,49 @@ const VendorDashboard = () => {
   if (isLoading) return <LoadingSpinner />;
 
   const stats = [
-    { label: 'Total Earnings', value: `$${statsData?.stats?.totalRevenue || '0.00'}`, icon: <FiDollarSign />, color: 'bg-emerald-500' },
-    { label: 'Pending Payout', value: `$${statsData?.stats?.payoutBalance || '0.00'}`, icon: <FiClock />, color: 'bg-amber-500' },
+    { label: 'Total Earnings', value: `$${parseFloat(statsData?.stats?.totalRevenue || 0).toLocaleString()}`, icon: <FiDollarSign />, color: 'bg-emerald-500' },
+    { label: 'Pending Payout', value: `$${parseFloat(statsData?.stats?.payoutBalance || 0).toLocaleString()}`, icon: <FiClock />, color: 'bg-amber-500' },
     { label: 'Total Bookings', value: statsData?.stats?.totalBookings || '0', icon: <FiShoppingBag />, color: 'bg-primary-500' },
     { label: 'Average Rating', value: statsData?.stats?.rating || '5.0', icon: <FiStar />, color: 'bg-indigo-500' },
   ];
+
+  const chartData = {
+    labels: (statsData?.revenueChart || []).map(d => d.label),
+    datasets: [
+      {
+        label: 'Revenue',
+        data: (statsData?.revenueChart || []).map(d => d.total),
+        fill: true,
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        borderColor: '#6366F1',
+        pointBackgroundColor: '#6366F1',
+        pointBorderColor: '#fff',
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 4,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        padding: 12,
+        titleFont: { size: 14, weight: 'bold' },
+        callbacks: {
+          label: (context) => `Revenue: $${context.parsed.y.toLocaleString()}`
+        }
+      },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+      y: { grid: { color: '#f1f5f9' }, ticks: { color: '#94a3b8', font: { size: 11 }, callback: (v) => `$${v}` }, beginAtZero: true },
+    },
+  };
 
   return (
     <div className="space-y-10">
@@ -52,17 +107,13 @@ const VendorDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Recent Performance Chart Placeholder */}
         <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100">
            <div className="flex justify-between items-center mb-10">
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">Booking Growth</h3>
-              <select className="bg-gray-50 border-none rounded-xl text-xs font-bold px-4 py-2 outline-none">
-                 <option>Last 7 Days</option>
-                 <option>Last 30 Days</option>
-              </select>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Revenue Analytics</h3>
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Last 7 Days</div>
            </div>
-           <div className="h-64 bg-gray-50 rounded-[2rem] flex items-center justify-center border-2 border-dashed border-gray-100">
-              <FiTrendingUp className="text-gray-200 text-6xl" />
+           <div className="h-64">
+              <Line data={chartData} options={chartOptions} />
            </div>
         </div>
 
