@@ -1,4 +1,4 @@
-const { Booking, User, Flight, Hotel, Package, Payment } = require('../models');
+const { Booking, User, Flight, Hotel, Package, Payment, Destination } = require('../models');
 const { Op } = require('sequelize');
 const { generateBookingReference, calculateTotalAmount } = require('../utils/helpers');
 const { sendBookingConfirmation, sendBookingCancellation } = require('../utils/emailService');

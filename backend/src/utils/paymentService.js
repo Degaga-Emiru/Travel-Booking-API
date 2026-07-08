@@ -1,48 +1,59 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const axios = require('axios');
 const { Payment, Booking } = require('../models');
 const { generatePaymentReference } = require('./helpers');
 const { sendPaymentConfirmation } = require('./emailService');
+const { v4: uuidv4 } = require('uuid');
+
+const CHAPA_URL = 'https://api.chapa.co/v1/transaction';
+const CHAPA_SECRET_KEY = process.env.CHAPA_SECRET_KEY;
 
 /**
- * Create Stripe payment intent
+ * Initialize Chapa payment
  */
-const createPaymentIntent = async (amount, currency = 'usd', metadata = {}) => {
+const initializeChapaPayment = async (amount, currency = 'ETB', email, firstName, lastName, txRef, returnUrl) => {
   try {
-    // Convert amount to cents (Stripe uses smallest currency unit)
-    const amountInCents = Math.round(amount * 100);
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountInCents,
-      currency,
-      metadata,
-      automatic_payment_methods: {
-        enabled: true,
+    const response = await axios.post(
+      `${CHAPA_URL}/initialize`,
+      {
+        amount,
+        currency,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        tx_ref: txRef,
+        return_url: returnUrl,
       },
-    });
+      {
+        headers: {
+          Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
-    return {
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id,
-      amount: amountInCents,
-      currency
-    };
+    return response.data; // { status: 'success', data: { checkout_url: '...' } }
   } catch (error) {
-    console.error('Error creating payment intent:', error);
-    throw new Error('Failed to create payment intent');
+    console.error('Error initializing Chapa payment:', error.response?.data || error.message);
+    throw new Error('Failed to initialize payment');
   }
 };
 
 /**
- * Confirm and process payment
+ * Verify Chapa payment
  */
-const confirmPayment = async (paymentIntentId, bookingId, userId) => {
+const verifyChapaPayment = async (txRef, bookingId, userId) => {
   try {
-    // Retrieve payment intent from Stripe
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    const response = await axios.get(`${CHAPA_URL}/verify/${txRef}`, {
+      headers: {
+        Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
+      },
+    });
 
-    if (paymentIntent.status !== 'succeeded') {
-      throw new Error('Payment not completed');
+    if (response.data.status !== 'success') {
+      throw new Error('Payment verification failed');
     }
+
+    const paymentDetails = response.data.data;
 
     // Find the booking
     const booking = await Booking.findByPk(bookingId);
@@ -52,13 +63,13 @@ const confirmPayment = async (paymentIntentId, bookingId, userId) => {
 
     // Create payment record
     const payment = await Payment.create({
-      paymentReference: generatePaymentReference(),
+      paymentReference: txRef,
       userId,
       bookingId,
-      amount: paymentIntent.amount / 100, // Convert back to dollars
-      currency: paymentIntent.currency,
-      paymentMethod: paymentIntent.payment_method_types[0],
-      paymentIntentId: paymentIntent.id,
+      amount: paymentDetails.amount,
+      currency: paymentDetails.currency,
+      paymentMethod: 'Chapa',
+      paymentIntentId: paymentDetails.id || txRef,
       status: 'completed',
       paymentDate: new Date()
     });
@@ -87,7 +98,7 @@ const confirmPayment = async (paymentIntentId, bookingId, userId) => {
     if (vendorId) {
       const vendor = await VendorProfile.findByPk(vendorId);
       if (vendor) {
-        const amount = paymentIntent.amount / 100;
+        const amount = paymentDetails.amount;
         const commission = amount * 0.10; // 10% platform fee
         const vendorShare = amount - commission;
 
@@ -101,6 +112,7 @@ const confirmPayment = async (paymentIntentId, bookingId, userId) => {
     // ----------------------------
 
     // Get user for email
+    const { User } = require('../models');
     const user = await User.findByPk(userId);
 
     // Send payment confirmation email
@@ -108,88 +120,20 @@ const confirmPayment = async (paymentIntentId, bookingId, userId) => {
 
     return payment;
   } catch (error) {
-    console.error('Error confirming payment:', error);
-    throw new Error('Failed to confirm payment');
+    console.error('Error verifying Chapa payment:', error.response?.data || error.message);
+    throw new Error('Failed to verify payment');
   }
 };
 
 /**
- * Process refund
+ * Process refund (Not directly supported by Chapa v1 API for automatic refunds, usually requires dashboard)
  */
 const processRefund = async (paymentId, amount = null) => {
-  try {
-    const payment = await Payment.findByPk(paymentId);
-    if (!payment) {
-      throw new Error('Payment not found');
-    }
-
-    const refundParams = {
-      payment_intent: payment.paymentIntentId,
-    };
-
-    if (amount) {
-      refundParams.amount = Math.round(amount * 100);
-    }
-
-    const refund = await stripe.refunds.create(refundParams);
-
-    // Update payment status
-    await payment.update({
-      status: amount ? 'partially_refunded' : 'refunded',
-      refundAmount: amount || payment.amount,
-      refundDate: new Date()
-    });
-
-    // Update booking status if full refund
-    if (!amount || amount === payment.amount) {
-      const booking = await Booking.findByPk(payment.bookingId);
-      if (booking) {
-        await booking.update({
-          paymentStatus: 'refunded',
-          status: 'cancelled'
-        });
-      }
-    }
-
-    return refund;
-  } catch (error) {
-    console.error('Error processing refund:', error);
-    throw new Error('Failed to process refund');
-  }
-};
-
-/**
- * Get payment details from Stripe
- */
-const getPaymentDetails = async (paymentIntentId) => {
-  try {
-    return await stripe.paymentIntents.retrieve(paymentIntentId);
-  } catch (error) {
-    console.error('Error retrieving payment details:', error);
-    throw new Error('Failed to retrieve payment details');
-  }
-};
-
-/**
- * Verify webhook signature
- */
-const verifyWebhookSignature = (payload, signature) => {
-  try {
-    return stripe.webhooks.constructEvent(
-      payload,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
-  } catch (error) {
-    console.error('Webhook signature verification failed:', error);
-    throw new Error('Invalid webhook signature');
-  }
+  throw new Error('Refunds must be processed manually through the Chapa dashboard');
 };
 
 module.exports = {
-  createPaymentIntent,
-  confirmPayment,
-  processRefund,
-  getPaymentDetails,
-  verifyWebhookSignature
+  initializeChapaPayment,
+  verifyChapaPayment,
+  processRefund
 };

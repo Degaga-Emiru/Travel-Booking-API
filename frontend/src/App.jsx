@@ -29,6 +29,7 @@ import FlightDetail from './pages/FlightDetail';
 import BookingWizard from './pages/BookingWizard';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFailed from './pages/PaymentFailed';
+import PaymentVerify from './pages/PaymentVerify';
 
 // Admin Pages
 import AdminLayout from './components/admin/AdminLayout';
@@ -212,6 +213,8 @@ function App() {
             <Route path="/booking/:type/:id" element={<ProtectedRoute><BookingWizard /></ProtectedRoute>} />
             <Route path="/payment/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
             <Route path="/payment/failed" element={<ProtectedRoute><PaymentFailed /></ProtectedRoute>} />
+            <Route path="/payment/verify/:txRef/:bookingId" element={<ProtectedRoute><PaymentVerify /></ProtectedRoute>} />
+            <Route path="/payment/verify" element={<ProtectedRoute><PaymentVerify /></ProtectedRoute>} />
           
         <Route path="*" element={<Navigate to="/" />} />
       </Route>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiClock, FiWifi, FiCoffee, FiFilm } from 'react-icons/fi';
 import { formatCurrency, formatDateTime } from '../../utils/helpers';
 
-const FlightCard = ({ flight, searchParams }) => {
+const FlightCard = ({ flight, searchParams, onSelect }) => {
   const getPriceForClass = () => {
     switch (searchParams.class) {
       case 'business':
@@ -42,9 +42,29 @@ const FlightCard = ({ flight, searchParams }) => {
     return `${hours}h ${mins}m`;
   };
 
+  const airportImages = [
+    'https://images.unsplash.com/photo-1436491865332-7a61a109cc05',
+    'https://images.unsplash.com/photo-1542296332-2e4473faf563',
+    'https://images.unsplash.com/photo-1516738901171-8eb4bfc500b2',
+    'https://images.unsplash.com/photo-1569154941061-e231b4732ef1',
+    'https://images.unsplash.com/photo-1530521954074-e64f6810b32d'
+  ];
+  const imageIndex = flight.id ? flight.id.toString().charCodeAt(0) % airportImages.length : 0;
+  const imageUrl = `${airportImages[imageIndex]}?w=400&q=80`;
+
   return (
     <div className="card p-6 hover:shadow-lg transition-shadow duration-300">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
+        
+        {/* Destination Image */}
+        <div className="w-full lg:w-48 h-32 flex-shrink-0">
+          <img 
+            src={imageUrl} 
+            alt={`Flight to ${flight.arrivalCity}`} 
+            className="w-full h-full object-cover rounded-xl"
+          />
+        </div>
+
         {/* Flight Info */}
         <div className="flex-1">
           <div className="flex items-center space-x-6">
@@ -127,13 +147,22 @@ const FlightCard = ({ flight, searchParams }) => {
             </div>
           </div>
 
-          <Link
-            to={`/flights/${flight.id}`}
-            state={{ searchParams }}
-            className="btn-primary whitespace-nowrap"
-          >
-            Select
-          </Link>
+          {onSelect ? (
+            <button
+              onClick={() => onSelect(flight)}
+              className="btn-primary whitespace-nowrap"
+            >
+              Select
+            </button>
+          ) : (
+            <Link
+              to={`/flights/${flight.id}`}
+              state={{ searchParams }}
+              className="btn-primary whitespace-nowrap"
+            >
+              Select
+            </Link>
+          )}
         </div>
       </div>
     </div>

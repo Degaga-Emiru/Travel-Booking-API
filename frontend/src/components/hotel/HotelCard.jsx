@@ -28,7 +28,7 @@ const HotelCard = ({ hotel, viewMode, searchParams }) => {
           {/* Hotel Image */}
           <div className="md:w-64">
             <img
-              src={hotel.images?.[0] || '/api/placeholder/400/300'}
+              src={hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80'}
               alt={hotel.name}
               className="w-full h-48 object-cover rounded-lg"
             />
@@ -116,7 +116,7 @@ const HotelCard = ({ hotel, viewMode, searchParams }) => {
       {/* Hotel Image */}
       <div className="relative">
         <img
-          src={hotel.images?.[0] || '/api/placeholder/400/300'}
+          src={hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80'}
           alt={hotel.name}
           className="w-full h-48 object-cover"
         />

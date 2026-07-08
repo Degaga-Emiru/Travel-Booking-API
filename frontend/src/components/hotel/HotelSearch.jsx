@@ -19,16 +19,16 @@ const HotelSearch = ({ onSearch }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (searchParams.city && searchParams.checkIn && searchParams.checkOut) {
+    if (searchParams.city) {
       onSearch({
         ...searchParams,
-        checkIn: searchParams.checkIn.toISOString(),
-        checkOut: searchParams.checkOut.toISOString(),
+        checkIn: searchParams.checkIn ? searchParams.checkIn.toISOString() : null,
+        checkOut: searchParams.checkOut ? searchParams.checkOut.toISOString() : null,
       });
     }
   };
 
-  const isFormValid = searchParams.city && searchParams.checkIn && searchParams.checkOut;
+  const isFormValid = !!searchParams.city;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,7 +69,6 @@ const HotelSearch = ({ onSearch }) => {
               minDate={new Date()}
               className="form-input pl-10 w-full"
               placeholderText="Select date"
-              required
             />
           </div>
         </div>
@@ -87,7 +86,6 @@ const HotelSearch = ({ onSearch }) => {
               minDate={searchParams.checkIn || new Date()}
               className="form-input pl-10 w-full"
               placeholderText="Select date"
-              required
             />
           </div>
         </div>

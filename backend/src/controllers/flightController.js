@@ -1,6 +1,6 @@
 const { Flight, Booking, sequelize, VendorProfile, Image } = require('../models');
 const { Op } = require('sequelize');
-const kiwiService = require('../utils/kiwiService');
+
 
 exports.getFlights = async (req, res, next) => {
   try {
@@ -32,7 +32,7 @@ exports.getFlights = async (req, res, next) => {
 
 exports.searchFlights = async (req, res, next) => {
   try {
-    const { departure, arrival, date, passengers = 1, class: flightClass = 'economy' } = req.query;
+    const { departure, arrival, date, returnDate, passengers = 1, class: flightClass = 'economy' } = req.query;
     
     const departureDate = new Date(date);
     const nextDay = new Date(departureDate);
@@ -60,30 +60,60 @@ exports.searchFlights = async (req, res, next) => {
         break;
     }
 
-    const flights = await Flight.findAll({
+    const outboundFlights = await Flight.findAll({
       where,
       order: [
         ['departureTime', 'ASC'],
         [flightClass + 'Price', 'ASC']
-      ]
+      ],
+      include: [{ model: Image, as: 'Images' }]
     });
 
-    // 2. Fetch external flights from Kiwi API
-    const externalFlights = await kiwiService.searchFlights({
-      departure,
-      arrival,
-      date,
-      passengers,
-      flightClass: flightClass === 'economy' ? 'M' : flightClass === 'business' ? 'C' : 'F'
-    });
-    
-    // Combine results (Internal first, then external)
-    const allFlights = [...flights, ...externalFlights];
+    let returnFlights = [];
+    if (returnDate) {
+      const returnDateStart = new Date(returnDate);
+      const returnNextDay = new Date(returnDateStart);
+      returnNextDay.setDate(returnNextDay.getDate() + 1);
+
+      const returnWhere = {
+        departureAirport: arrival.toUpperCase(),
+        arrivalAirport: departure.toUpperCase(),
+        departureTime: {
+          [Op.between]: [returnDateStart, returnNextDay]
+        },
+        isActive: true
+      };
+
+      // Add seat availability based on class for return flights
+      switch (flightClass) {
+        case 'economy':
+          returnWhere.availableEconomySeats = { [Op.gte]: parseInt(passengers) };
+          break;
+        case 'business':
+          returnWhere.availableBusinessSeats = { [Op.gte]: parseInt(passengers) };
+          break;
+        case 'first':
+          returnWhere.availableFirstClassSeats = { [Op.gte]: parseInt(passengers) };
+          break;
+      }
+
+      returnFlights = await Flight.findAll({
+        where: returnWhere,
+        order: [
+          ['departureTime', 'ASC'],
+          [flightClass + 'Price', 'ASC']
+        ],
+        include: [{ model: Image, as: 'Images' }]
+      });
+    }
 
     res.status(200).json({
       success: true,
-      count: allFlights.length,
-      data: allFlights
+      count: outboundFlights.length + returnFlights.length,
+      data: {
+        outbound: outboundFlights,
+        return: returnFlights.length > 0 ? returnFlights : undefined
+      }
     });
   } catch (error) {
     next(error);

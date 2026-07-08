@@ -1,10 +1,11 @@
 const { Payment, Booking, User } = require('../models');
 const { Op } = require('sequelize');
-const { createPaymentIntent, confirmPayment, processRefund } = require('../utils/paymentService');
+const { initializeChapaPayment, verifyChapaPayment, processRefund: chapaRefund } = require('../utils/paymentService');
+const { v4: uuidv4 } = require('uuid');
 
-exports.createPaymentIntent = async (req, res, next) => {
+exports.initializePayment = async (req, res, next) => {
   try {
-    const { bookingId, amount, currency = 'usd' } = req.body;
+    const { bookingId, amount, currency = 'ETB', email, firstName, lastName } = req.body;
 
     const booking = await Booking.findByPk(bookingId);
     if (!booking) {
@@ -30,28 +31,26 @@ exports.createPaymentIntent = async (req, res, next) => {
       });
     }
 
-    const metadata = {
-      bookingId: booking.id,
-      userId: req.user.id,
-      bookingReference: booking.bookingReference
-    };
+    const txRef = `TX-${uuidv4()}`;
+    const returnUrl = `http://localhost:5173/payment/verify/${txRef}/${bookingId}`;
 
-    const paymentIntent = await createPaymentIntent(amount, currency, metadata);
+    const paymentResponse = await initializeChapaPayment(amount, currency, email, firstName, lastName, txRef, returnUrl);
 
     res.status(200).json({
       success: true,
-      data: paymentIntent
+      data: paymentResponse.data // Contains checkout_url
     });
   } catch (error) {
     next(error);
   }
 };
 
-exports.confirmPayment = async (req, res, next) => {
+exports.verifyPayment = async (req, res, next) => {
   try {
-    const { paymentIntentId, bookingId } = req.body;
+    const { txRef } = req.params;
+    const { bookingId } = req.query;
 
-    const payment = await confirmPayment(paymentIntentId, bookingId, req.user.id);
+    const payment = await verifyChapaPayment(txRef, bookingId, req.user.id);
 
     res.status(200).json({
       success: true,

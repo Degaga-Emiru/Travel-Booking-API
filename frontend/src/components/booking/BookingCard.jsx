@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { bookingAPI } from '../../services/booking';
 import { formatCurrency, formatDate, getBookingTypeIcon, getStatusColor } from '../../utils/helpers';
 import { FiCalendar, FiMapPin, FiUsers, FiDollarSign, FiX } from 'react-icons/fi';
@@ -11,6 +12,7 @@ const BookingCard = ({ booking, onUpdate }) => {
   const [cancelReason, setCancelReason] = useState('');
   const [review, setReview] = useState({ rating: 5, comment: '' });
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const cancelMutation = useMutation({
     mutationFn: () => bookingAPI.cancelBooking(booking.id, cancelReason),
@@ -60,6 +62,7 @@ const BookingCard = ({ booking, onUpdate }) => {
             'Flight Booking',
           date: booking.flightDate,
           details: `${booking.adults + booking.children} passenger${booking.adults + booking.children > 1 ? 's' : ''}`,
+          targetUrl: `/flights/${booking.flightId}`
         };
       case 'hotel':
         return {
@@ -67,6 +70,7 @@ const BookingCard = ({ booking, onUpdate }) => {
           title: booking.Hotel?.name || 'Hotel Booking',
           date: booking.checkInDate,
           details: `${booking.rooms} room${booking.rooms > 1 ? 's' : ''}, ${booking.adults + booking.children} guest${booking.adults + booking.children > 1 ? 's' : ''}`,
+          targetUrl: `/hotels/${booking.hotelId}`
         };
       case 'package':
         return {
@@ -74,6 +78,7 @@ const BookingCard = ({ booking, onUpdate }) => {
           title: booking.Package?.name || 'Travel Package',
           date: booking.Package?.startDate,
           details: `${booking.Package?.duration || 'N/A'} days, ${booking.adults + booking.children} traveler${booking.adults + booking.children > 1 ? 's' : ''}`,
+          targetUrl: `/packages/${booking.packageId}`
         };
       default:
         return {
@@ -81,6 +86,7 @@ const BookingCard = ({ booking, onUpdate }) => {
           title: 'Booking',
           date: booking.bookingDate,
           details: '',
+          targetUrl: '#'
         };
     }
   };
@@ -180,7 +186,10 @@ const BookingCard = ({ booking, onUpdate }) => {
               </button>
             )}
 
-            <button className="btn-secondary text-sm">
+            <button 
+              className="btn-secondary text-sm"
+              onClick={() => navigate(details.targetUrl)}
+            >
               View Details
             </button>
           </div>

@@ -1,3 +1,9 @@
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../services/api';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { FiDollarSign, FiClock, FiShoppingBag, FiStar, FiCheckCircle } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 import {
   Chart as ChartJS,
   CategoryScale,

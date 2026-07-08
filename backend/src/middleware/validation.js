@@ -134,14 +134,17 @@ const validateBooking = (req, res, next) => {
     passengers: Joi.array().items(Joi.object({
       firstName: Joi.string().required(),
       lastName: Joi.string().required(),
-      dateOfBirth: Joi.date().required(),
-      passportNumber: Joi.string().optional()
+      dateOfBirth: Joi.date().optional().allow(null, ''),
+      passportNumber: Joi.string().optional().allow(null, ''),
+      email: Joi.string().email().optional().allow(null, ''),
+      phone: Joi.string().optional().allow(null, ''),
+      dob: Joi.date().optional().allow(null, '')
     })).optional(),
     adults: Joi.number().min(1).max(10).optional(),
     children: Joi.number().min(0).max(10).optional(),
     rooms: Joi.number().min(1).max(10).optional(),
-    specialRequests: Joi.string().max(500).optional()
-  });
+    specialRequests: Joi.string().max(500).optional().allow(null, '')
+  }).unknown(true);
 
   const { error } = schema.validate(req.body);
   if (error) {
@@ -175,8 +178,8 @@ const validateFlightSearch = (req, res, next) => {
 const validateHotelSearch = (req, res, next) => {
   const schema = Joi.object({
     city: Joi.string().min(2).required(),
-    checkIn: Joi.date().greater('now').required(),
-    checkOut: Joi.date().greater(Joi.ref('checkIn')).required(),
+    checkIn: Joi.date().greater('now').optional().allow(null, ''),
+    checkOut: Joi.date().greater(Joi.ref('checkIn')).optional().allow(null, ''),
     guests: Joi.number().min(1).max(10).default(1),
     rooms: Joi.number().min(1).max(5).default(1),
     minPrice: Joi.number().min(0).optional(),

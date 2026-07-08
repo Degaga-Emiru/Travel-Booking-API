@@ -4,14 +4,35 @@ import { FiMapPin, FiStar, FiWifi, FiCoffee, FiTv, FiWind, FiCalendar, FiUsers, 
 import api from '../services/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { motion } from 'framer-motion';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const HotelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = location.state?.searchParams || {};
+
   const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedDates, setSelectedDates] = useState({ checkIn: '', checkOut: '' });
-  const [guests, setGuests] = useState(1);
+  
+  const [selectedDates, setSelectedDates] = useState({ 
+    checkIn: searchParams.checkIn ? new Date(searchParams.checkIn) : null, 
+    checkOut: searchParams.checkOut ? new Date(searchParams.checkOut) : null 
+  });
+  const [guests, setGuests] = useState(searchParams.guests || 1);
+
+  const getNights = () => {
+    if (selectedDates.checkIn && selectedDates.checkOut) {
+      const diffTime = Math.abs(selectedDates.checkOut - selectedDates.checkIn);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      return diffDays > 0 ? diffDays : 1;
+    }
+    return 1;
+  };
+  const nights = getNights();
 
   useEffect(() => {
     const fetchHotel = async () => {
@@ -28,7 +49,16 @@ const HotelDetail = () => {
   }, [id]);
 
   const handleBooking = () => {
-    navigate(`/booking/hotel/${id}`, { state: { hotel, selectedDates, guests } });
+    if (!selectedDates.checkIn || !selectedDates.checkOut) {
+      toast.error('Please select check-in and check-out dates to continue.');
+      return;
+    }
+
+    const formattedDates = {
+      checkIn: selectedDates.checkIn.toISOString(),
+      checkOut: selectedDates.checkOut.toISOString(),
+    };
+    navigate(`/booking/hotel/${id}`, { state: { hotel, selectedDates: formattedDates, guests } });
   };
 
   if (loading) return <LoadingSpinner />;
@@ -114,15 +144,19 @@ const HotelDetail = () => {
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">Dates</label>
                 <div className="grid grid-cols-2 gap-2">
-                  <input 
-                    type="date" 
+                  <DatePicker 
+                    selected={selectedDates.checkIn}
+                    onChange={(date) => setSelectedDates(prev => ({ ...prev, checkIn: date }))}
+                    minDate={new Date()}
+                    placeholderText="Check-in"
                     className="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm"
-                    onChange={(e) => setSelectedDates(prev => ({ ...prev, checkIn: e.target.value }))}
                   />
-                  <input 
-                    type="date" 
+                  <DatePicker 
+                    selected={selectedDates.checkOut}
+                    onChange={(date) => setSelectedDates(prev => ({ ...prev, checkOut: date }))}
+                    minDate={selectedDates.checkIn || new Date()}
+                    placeholderText="Check-out"
                     className="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm"
-                    onChange={(e) => setSelectedDates(prev => ({ ...prev, checkOut: e.target.value }))}
                   />
                 </div>
               </div>
@@ -155,8 +189,8 @@ const HotelDetail = () => {
 
             <div className="border-t border-gray-100 pt-6 space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">${hotel.pricePerNight} x 3 nights</span>
-                <span className="font-bold">${hotel.pricePerNight * 3}</span>
+                <span className="text-gray-500">${hotel.pricePerNight} x {nights} night{nights > 1 ? 's' : ''}</span>
+                <span className="font-bold">${hotel.pricePerNight * nights}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Service fee</span>
@@ -164,7 +198,7 @@ const HotelDetail = () => {
               </div>
               <div className="flex justify-between text-lg font-bold pt-3 border-t border-gray-100">
                 <span>Total</span>
-                <span>${(hotel.pricePerNight * 3) + 25}</span>
+                <span>${(hotel.pricePerNight * nights) + 25}</span>
               </div>
             </div>
           </div>

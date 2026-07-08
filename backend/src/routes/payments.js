@@ -1,7 +1,7 @@
 const express = require('express');
 const {
-  createPaymentIntent,
-  confirmPayment,
+  initializePayment,
+  verifyPayment,
   getPayment,
   getPayments,
   refundPayment,
@@ -15,8 +15,8 @@ const router = express.Router();
 router.use(protect);
 
 // Customer routes
-router.post('/create-intent', paymentLimiter, createPaymentIntent);
-router.post('/confirm', paymentLimiter, confirmPayment);
+router.post('/initialize', paymentLimiter, initializePayment);
+router.get('/verify/:txRef', verifyPayment);
 router.get('/my-payments', getPayments);
 router.get('/:id', getPayment);
 

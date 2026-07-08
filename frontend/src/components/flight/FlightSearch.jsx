@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { FiSearch, FiCalendar, FiUsers, FiArrowRight } from 'react-icons/fi';
 import { AIRLINES, CITIES } from '../../utils/constants';
+import CityAutocomplete from './CityAutocomplete';
 
 const FlightSearch = ({ onSearch }) => {
   const [searchParams, setSearchParams] = useState({
@@ -73,24 +74,12 @@ const FlightSearch = ({ onSearch }) => {
         {/* Departure */}
         <div>
           <label className="form-label">From</label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FiSearch className="h-5 w-5 text-gray-400" />
-            </div>
-            <select
-              value={searchParams.departure}
-              onChange={(e) => handleInputChange('departure', e.target.value)}
-              className="form-input pl-10"
-              required
-            >
-              <option value="">Select departure</option>
-              {Object.values(CITIES).flat().map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </div>
+          <CityAutocomplete
+            value={searchParams.departure}
+            onChange={(val) => handleInputChange('departure', val)}
+            placeholder="Select departure"
+            required
+          />
         </div>
 
         {/* Swap Button */}
@@ -107,24 +96,12 @@ const FlightSearch = ({ onSearch }) => {
         {/* Arrival */}
         <div>
           <label className="form-label">To</label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FiSearch className="h-5 w-5 text-gray-400" />
-            </div>
-            <select
-              value={searchParams.arrival}
-              onChange={(e) => handleInputChange('arrival', e.target.value)}
-              className="form-input pl-10"
-              required
-            >
-              <option value="">Select destination</option>
-              {Object.values(CITIES).flat().map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </div>
+          <CityAutocomplete
+            value={searchParams.arrival}
+            onChange={(val) => handleInputChange('arrival', val)}
+            placeholder="Select destination"
+            required
+          />
         </div>
 
         {/* Departure Date */}

@@ -41,7 +41,8 @@ const sendEmail = async (to, subject, templateName, templateData) => {
     return result;
   } catch (error) {
     console.error('Error sending email:', error);
-    throw new Error('Failed to send email');
+    // Suppress error so local development without SMTP doesn't crash features
+    return null;
   }
 };
 /**
