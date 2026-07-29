@@ -39,8 +39,20 @@ exports.searchFlights = async (req, res, next) => {
     nextDay.setDate(nextDay.getDate() + 1);
 
     const where = {
-      departureAirport: departure.toUpperCase(),
-      arrivalAirport: arrival.toUpperCase(),
+      [Op.and]: [
+        {
+          [Op.or]: [
+            { departureAirport: { [Op.iLike]: `%${departure}%` } },
+            { departureCity: { [Op.iLike]: `%${departure}%` } }
+          ]
+        },
+        {
+          [Op.or]: [
+            { arrivalAirport: { [Op.iLike]: `%${arrival}%` } },
+            { arrivalCity: { [Op.iLike]: `%${arrival}%` } }
+          ]
+        }
+      ],
       departureTime: {
         [Op.between]: [departureDate, nextDay]
       },
@@ -76,8 +88,20 @@ exports.searchFlights = async (req, res, next) => {
       returnNextDay.setDate(returnNextDay.getDate() + 1);
 
       const returnWhere = {
-        departureAirport: arrival.toUpperCase(),
-        arrivalAirport: departure.toUpperCase(),
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { departureAirport: { [Op.iLike]: `%${arrival}%` } },
+              { departureCity: { [Op.iLike]: `%${arrival}%` } }
+            ]
+          },
+          {
+            [Op.or]: [
+              { arrivalAirport: { [Op.iLike]: `%${departure}%` } },
+              { arrivalCity: { [Op.iLike]: `%${departure}%` } }
+            ]
+          }
+        ],
         departureTime: {
           [Op.between]: [returnDateStart, returnNextDay]
         },

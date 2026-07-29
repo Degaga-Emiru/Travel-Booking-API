@@ -188,7 +188,7 @@ const BookingCard = ({ booking, onUpdate }) => {
 
             <button 
               className="btn-secondary text-sm"
-              onClick={() => navigate(details.targetUrl)}
+              onClick={() => navigate(details.targetUrl, { state: { fromBookings: true, booking } })}
             >
               View Details
             </button>

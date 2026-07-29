@@ -32,7 +32,7 @@ exports.getHotels = async (req, res, next) => {
 
 exports.searchHotels = async (req, res, next) => {
   try {
-    const { city, checkIn, checkOut, guests = 1, rooms = 1, minPrice, maxPrice, rating } = req.query;
+    const { city = '', checkIn, checkOut, guests = 1, rooms = 1, minPrice, maxPrice, rating } = req.query;
     
     const where = {
       city: { [Op.iLike]: `%${city}%` },

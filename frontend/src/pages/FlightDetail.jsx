@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiSend, FiClock, FiShield, FiBriefcase, FiArrowRight } from 'react-icons/fi';
+import { FiSend, FiClock, FiShield, FiBriefcase, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
 import api from '../services/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { motion } from 'framer-motion';
@@ -35,6 +35,13 @@ const FlightDetail = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
+      <button 
+        onClick={() => navigate(-1)} 
+        className="flex items-center text-gray-600 hover:text-gray-900 mb-6 font-semibold transition-all active:scale-95"
+      >
+        <FiArrowLeft className="mr-2 text-lg" /> Back
+      </button>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }}

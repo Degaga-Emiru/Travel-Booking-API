@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 import { hotelAPI } from '../services/hotel';
 import HotelCard from '../components/hotel/HotelCard';
 import HotelSearch from '../components/hotel/HotelSearch';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { FiFilter, FiGrid, FiList } from 'react-icons/fi';
+import { FiGrid, FiList } from 'react-icons/fi';
 
 const Hotels = () => {
+  const location = useLocation();
+
   const [searchParams, setSearchParams] = useState({
     city: '',
     checkIn: '',
@@ -17,8 +20,28 @@ const Hotels = () => {
     maxPrice: '',
     rating: '',
   });
+
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('rating_desc');
+
+  // Parse URL query parameters on load
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const city = params.get('city') || '';
+    const checkIn = params.get('checkIn') || '';
+    const checkOut = params.get('checkOut') || '';
+    const guests = parseInt(params.get('guests') || '1');
+
+    if (city || checkIn || checkOut) {
+      setSearchParams(prev => ({
+        ...prev,
+        city,
+        checkIn,
+        checkOut,
+        guests
+      }));
+    }
+  }, [location.search]);
 
   const {
     data: hotelsData,
@@ -26,8 +49,13 @@ const Hotels = () => {
     error,
   } = useQuery({
     queryKey: ['hotels', searchParams],
-    queryFn: () => hotelAPI.search(searchParams),
-    enabled: !!searchParams.city,
+    queryFn: () => {
+      if (!searchParams.city) {
+        return hotelAPI.getAll();
+      }
+      return hotelAPI.search(searchParams);
+    },
+    enabled: true,
   });
 
   const handleSearch = (params) => {
@@ -51,51 +79,49 @@ const Hotels = () => {
       </div>
 
       {/* Results Header */}
-      {searchParams.city && (
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              {hotels.length} hotels found
-              {searchParams.city && ` in ${searchParams.city}`}
-            </h2>
-            {searchParams.checkIn && searchParams.checkOut && (
-              <p className="text-gray-600 text-sm">
-                {new Date(searchParams.checkIn).toLocaleDateString()} - {new Date(searchParams.checkOut).toLocaleDateString()}
-              </p>
-            )}
-          </div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {hotels.length} hotels found
+            {searchParams.city && ` in ${searchParams.city}`}
+          </h2>
+          {searchParams.checkIn && searchParams.checkOut && (
+            <p className="text-gray-600 text-sm">
+              {new Date(searchParams.checkIn).toLocaleDateString()} - {new Date(searchParams.checkOut).toLocaleDateString()}
+            </p>
+          )}
+        </div>
 
-          <div className="flex items-center space-x-4">
-            {/* Sort Dropdown */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="form-input w-40"
+        <div className="flex items-center space-x-4">
+          {/* Sort Dropdown */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="form-input w-40"
+          >
+            <option value="rating_desc">Highest Rated</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="name_asc">Name: A to Z</option>
+          </select>
+
+          {/* View Mode Toggle */}
+          <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 ${viewMode === 'grid' ? 'bg-primary-500 text-white' : 'text-gray-600'}`}
             >
-              <option value="rating_desc">Highest Rated</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="name_asc">Name: A to Z</option>
-            </select>
-
-            {/* View Mode Toggle */}
-            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 ${viewMode === 'grid' ? 'bg-primary-500 text-white' : 'text-gray-600'}`}
-              >
-                <FiGrid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 ${viewMode === 'list' ? 'bg-primary-500 text-white' : 'text-gray-600'}`}
-              >
-                <FiList className="w-4 h-4" />
-              </button>
-            </div>
+              <FiGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 ${viewMode === 'list' ? 'bg-primary-500 text-white' : 'text-gray-600'}`}
+            >
+              <FiList className="w-4 h-4" />
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Results */}
       {isLoading && <LoadingSpinner />}
@@ -112,7 +138,7 @@ const Hotels = () => {
         </div>
       )}
 
-      {searchParams.city && !isLoading && hotels.length === 0 && (
+      {!isLoading && hotels.length === 0 && (
         <div className="text-center py-12">
           <div className="text-gray-500 text-lg mb-4">No hotels found matching your criteria</div>
           <p className="text-gray-400">Try adjusting your search filters</p>
@@ -133,21 +159,6 @@ const Hotels = () => {
               searchParams={searchParams}
             />
           ))}
-        </div>
-      )}
-
-      {/* Initial State */}
-      {!searchParams.city && (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiFilter className="w-12 h-12 text-primary-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Start your hotel search
-          </h3>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Enter your destination, travel dates, and preferences to find the perfect hotel for your stay.
-          </p>
         </div>
       )}
     </div>

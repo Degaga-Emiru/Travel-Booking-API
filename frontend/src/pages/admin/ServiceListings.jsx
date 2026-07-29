@@ -129,7 +129,7 @@ const ServiceListings = () => {
                 <>
                   {activeTab === 'flights' && filtered.map(f => (
                     <tr key={f.id} className="hover:bg-gray-50/50 transition-colors text-sm">
-                      <td className="px-6 py-4" onClick={() => setSelectedItem(f)} className="cursor-pointer">
+                      <td className="px-6 py-4 cursor-pointer" onClick={() => setSelectedItem(f)}>
                         <p className="font-bold">{f.airline}</p>
                         <p className="text-xs text-gray-400">{f.flightNumber}</p>
                       </td>
@@ -153,7 +153,7 @@ const ServiceListings = () => {
                   ))}
                   {activeTab === 'hotels' && filtered.map(h => (
                     <tr key={h.id} className="hover:bg-gray-50/50 transition-colors text-sm">
-                      <td className="px-6 py-4" onClick={() => setSelectedItem(h)} className="cursor-pointer">
+                      <td className="px-6 py-4 cursor-pointer" onClick={() => setSelectedItem(h)}>
                         <p className="font-bold">{h.name}</p>
                         <p className="text-xs text-gray-400">{'⭐'.repeat(h.starRating || 0)}</p>
                       </td>
@@ -178,7 +178,7 @@ const ServiceListings = () => {
                   ))}
                   {activeTab === 'cars' && filtered.map(c => (
                     <tr key={c.id} className="hover:bg-gray-50/50 transition-colors text-sm">
-                      <td className="px-6 py-4" onClick={() => setSelectedItem(c)} className="cursor-pointer">
+                      <td className="px-6 py-4 cursor-pointer" onClick={() => setSelectedItem(c)}>
                         <p className="font-bold">{c.brand} {c.model}</p>
                         <p className="text-xs text-gray-400">{c.type} · {c.transmission}</p>
                       </td>

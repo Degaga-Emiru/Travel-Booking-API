@@ -46,12 +46,13 @@ export const CURRENCIES = {
 };
 
 export const COUNTRIES = [
-  'United States', 'Canada', 'United Kingdom', 'Germany', 'France', 'Italy', 'Spain',
+  'Ethiopia', 'United States', 'Canada', 'United Kingdom', 'Germany', 'France', 'Italy', 'Spain',
   'Japan', 'China', 'Australia', 'India', 'Brazil', 'Mexico', 'Thailand', 'Singapore',
   'United Arab Emirates', 'South Korea', 'Turkey', 'Netherlands', 'Switzerland'
 ];
 
 export const CITIES = {
+  'Ethiopia': ['Addis Ababa', 'Lalibela', 'Hawassa', 'Arbaminch', 'Assosa', 'Gondar'],
   'United States': ['New York', 'Los Angeles', 'Chicago', 'Miami', 'Las Vegas'],
   'United Kingdom': ['London', 'Manchester', 'Edinburgh', 'Birmingham'],
   'France': ['Paris', 'Nice', 'Lyon', 'Marseille'],
